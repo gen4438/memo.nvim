@@ -76,15 +76,16 @@ lazy.nvimを使用する場合:
 4. コマンド                                                 *memo-commands*
 
 メモ作成コマンド:
-  `:MemoNew <title>`                 一般メモの作成
-  `:MemoNewWork <project> <title>`   ワークメモの作成
-  `:MemoNewPrompt <title>`           プロンプトメモの作成
-  `:MemoNewCode <lang> <title>`      コードメモの作成
+  `:MemoNew <title>`                  一般メモの作成
+  `:MemoNewWork [project] [title]`    ワークメモの作成 (引数なしで対話的に選択)
+  `:MemoNewPrompt <title>`            プロンプトメモの作成
+  `:MemoNewCode [lang] [title]`       コードメモの作成 (引数なしで対話的に選択)
 
 定期メモコマンド:
-  `:MemoOpenWeekly`                  週間メモを開く
-  `:MemoOpenMonthly`                 月間メモを開く
-  `:MemoOpenYearly`                  年間メモを開く
+  `:MemoOpenDaily`                   Daily memo
+  `:MemoOpenWeekly`                  Weekly memo
+  `:MemoOpenMonthly`                 Monthly memo
+  `:MemoOpenYearly`                  Yearly memo
 
 検索コマンド:
   `:FzfMemoList`                     メモ一覧の表示
@@ -104,15 +105,16 @@ Git連携コマンド:
 5. キーマップ                                              *memo-mappings*
 
 メモ作成:
-  `<leader>mn`                       一般メモの作成
-  `<leader>mnw`                      ワークメモの作成
-  `<leader>mnp`                      プロンプトメモの作成
-  `<leader>mnc`                      コードメモの作成
+  `<leader>mnn`                      Create general memo
+  `<leader>mnw`                      Create work memo (interactive)
+  `<leader>mnp`                      Create prompt memo
+  `<leader>mnc`                      Create code memo (interactive)
 
 定期メモ:
-  `<leader>mw`                       週間メモを開く
-  `<leader>mm`                       月間メモを開く
-  `<leader>my`                       年間メモを開く
+  `<leader>md`                       Open daily memo
+  `<leader>mw`                       Open weekly memo
+  `<leader>mm`                       Open monthly memo
+  `<leader>my`                       Open yearly memo
 
 検索:
   `<leader>ml`                       メモ一覧の表示

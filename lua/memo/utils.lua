@@ -15,9 +15,36 @@ function M.get_date_parts()
   local year = tostring(date.year)
   local month = string.format("%02d", date.month)
   local day = string.format("%02d", date.day)
-  local week = os.date("%V") -- ISO week number
 
-  return year, month, day, week
+  -- ISO week number
+  local iso_week = os.date("%V")
+
+  -- Get the week of month (1-5)
+  local first_day = os.time { year = date.year, month = date.month, day = 1 }
+  local first_day_info = os.date("*t", first_day)
+  local week_of_month = math.ceil((date.day + (first_day_info.wday - 2) % 7) / 7)
+
+  -- Get start date of current week (Monday)
+  local wday = date.wday
+  local monday_offset = wday == 1 and -6 or (2 - wday)
+  local monday = os.time { year = date.year, month = date.month, day = date.day + monday_offset }
+  local monday_date = os.date("*t", monday)
+  local week_start_month = string.format("%02d", monday_date.month)
+  local week_start_day = string.format("%02d", monday_date.day)
+
+  -- Get end date of current week (Sunday)
+  local sunday = os.time { year = date.year, month = date.month, day = date.day + monday_offset + 6 }
+  local sunday_date = os.date("*t", sunday)
+  local week_end_month = string.format("%02d", sunday_date.month)
+  local week_end_day = string.format("%02d", sunday_date.day)
+
+  -- Format dates
+  local date_format = year .. "/" .. month .. "/" .. day
+  local week_start_format = year .. "/" .. week_start_month .. "/" .. week_start_day
+  local week_end_format = year .. "/" .. week_end_month .. "/" .. week_end_day
+  local month_format = year .. "/" .. month
+
+  return year, month, day, iso_week, week_of_month, date_format, week_start_format, week_end_format, month_format
 end
 
 -- Sanitize title for filename (replace spaces, remove special chars)

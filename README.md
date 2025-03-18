@@ -60,6 +60,10 @@ my-notes/
 │   │   │   └── YYYY/MM/YYYY-MM-DD_note2.md
 │   │   └── project2/
 │   └── general/
+│       ├── YYYY/MM/YYYY-MM-DD_daily.md     # 日次メモ
+│       ├── YYYY/YYYY-wXX_weekly.md         # 週次メモ (XX は週番号)
+│       ├── YYYY/MM/YYYY-MM_monthly.md      # 月間メモ
+│       ├── YYYY/YYYY_yearly.md             # 年間メモ
 │       ├── YYYY/MM/YYYY-MM-DD_note1.md
 │       └── YYYY/MM/YYYY-MM-DD_note2.md
 └── code/
@@ -76,12 +80,13 @@ my-notes/
 ### Memo Creation
 
 - `:MemoNew <title>` - Create a new general memo
-- `:MemoNewWork <project_name> <title>` - Create a new work memo for a specific project
+- `:MemoNewWork [project_name] [title]` - Create a work memo (interactive if no args)
 - `:MemoNewPrompt <title>` - Create a new prompt memo
-- `:MemoNewCode <lang> <title>` - Create a new code memo for a specific language
+- `:MemoNewCode [lang] [title]` - Create a code memo (interactive if no args)
 
 ### Periodic Memos
 
+- `:MemoOpenDaily` - Open/create the daily memo
 - `:MemoOpenWeekly` - Open/create the weekly memo
 - `:MemoOpenMonthly` - Open/create the monthly memo
 - `:MemoOpenYearly` - Open/create the yearly memo
@@ -106,13 +111,14 @@ my-notes/
 
 ### Memo Creation
 
-- `<leader>mn` - Create new general memo
-- `<leader>mnw` - Create new work memo
+- `<leader>mnn` - Create new general memo
+- `<leader>mnw` - Create new work memo (interactive)
 - `<leader>mnp` - Create new prompt memo
-- `<leader>mnc` - Create new code memo
+- `<leader>mnc` - Create new code memo (interactive)
 
 ### Periodic Memos
 
+- `<leader>md` - Open daily memo
 - `<leader>mw` - Open weekly memo
 - `<leader>mm` - Open monthly memo
 - `<leader>my` - Open yearly memo

@@ -1,153 +1,254 @@
 -- Commands and keymaps for memo.nvim
 
-local memo = require('memo.memo')
-local periodic = require('memo.periodic')
-local search = require('memo.search')
-local git = require('memo.git')
-local utils = require('memo.utils')
-
 local api = vim.api
 
 local M = {}
 
+-- Interactive memo creation functions
+function M.interactive_work_memo()
+  local memo = require('memo.memo')
+  local utils = require('memo.utils')
+
+  -- Get list of available projects
+  local projects = utils.complete_project_names("", "", 0)
+
+  -- Show project selection
+  if vim.tbl_isempty(projects) then
+    -- If no projects exist, prompt to create a new one
+    vim.ui.input({
+      prompt = "No projects found. Enter new project name: ",
+    }, function(new_project)
+      if new_project and new_project ~= "" then
+        -- Now ask for a title
+        vim.ui.input({
+          prompt = "Enter memo title: ",
+        }, function(title)
+          if title and title ~= "" then
+            memo.create_work_memo(new_project, title)
+          end
+        end)
+      end
+    end)
+  else
+    -- Select from existing projects
+    vim.ui.select(projects, {
+      prompt = "Select project: ",
+    }, function(project)
+      if project then
+        -- Now ask for a title
+        vim.ui.input({
+          prompt = "Enter memo title: ",
+        }, function(title)
+          if title and title ~= "" then
+            memo.create_work_memo(project, title)
+          end
+        end)
+      end
+    end)
+  end
+end
+
+function M.interactive_code_memo()
+  local memo = require('memo.memo')
+  local utils = require('memo.utils')
+
+  -- Get list of available languages
+  local languages = utils.complete_languages("", "", 0)
+
+  -- Show language selection
+  if vim.tbl_isempty(languages) then
+    -- If no languages exist, prompt to create a new one
+    vim.ui.input({
+      prompt = "No language directories found. Enter language name: ",
+    }, function(new_lang)
+      if new_lang and new_lang ~= "" then
+        -- Now ask for a title
+        vim.ui.input({
+          prompt = "Enter memo title: ",
+        }, function(title)
+          if title and title ~= "" then
+            memo.create_code_memo(new_lang, title)
+          end
+        end)
+      end
+    end)
+  else
+    -- Select from existing languages
+    vim.ui.select(languages, {
+      prompt = "Select language: ",
+    }, function(lang)
+      if lang then
+        -- Now ask for a title
+        vim.ui.input({
+          prompt = "Enter memo title: ",
+        }, function(title)
+          if title and title ~= "" then
+            memo.create_code_memo(lang, title)
+          end
+        end)
+      end
+    end)
+  end
+end
+
 -- Setup commands and keymaps
 function M.setup()
+  -- Import modules locally rather than global variables
+
   -- Create commands for memo creation
   api.nvim_create_user_command("MemoNew", function(args)
-    memo.create_general_memo(args.args)
+    require('memo.memo').create_general_memo(args.args)
   end, {
     nargs = 1,
     desc = "Create a new general memo",
   })
 
   api.nvim_create_user_command("MemoNewWork", function(args)
-    local parts = vim.split(args.args, " ", { plain = true })
-    if #parts < 2 then
-      vim.notify("Usage: MemoNewWork project_name title", vim.log.levels.ERROR)
-      return
+    if args.args == "" then
+      -- Interactive mode
+      M.interactive_work_memo()
+    else
+      -- Traditional mode with arguments
+      local parts = vim.split(args.args, " ", { plain = true })
+      if #parts < 2 then
+        vim.notify("Usage: MemoNewWork project_name title", vim.log.levels.ERROR)
+        return
+      end
+      local project_name = parts[1]
+      local title = table.concat({ unpack(parts, 2) }, " ")
+      require('memo.memo').create_work_memo(project_name, title)
     end
-    local project_name = parts[1]
-    local title = table.concat({ unpack(parts, 2) }, " ")
-    memo.create_work_memo(project_name, title)
   end, {
-    nargs = "+",
+    nargs = "?",
     desc = "Create a new work memo",
     complete = function(arg_lead, cmd_line, cursor_pos)
       local cmd_parts = vim.split(cmd_line, " ", { plain = true })
       if #cmd_parts == 2 then
-        return utils.complete_project_names(arg_lead, cmd_line, cursor_pos)
+        return require('memo.utils').complete_project_names(arg_lead, cmd_line, cursor_pos)
       end
       return {}
     end,
   })
 
   api.nvim_create_user_command("MemoNewPrompt", function(args)
-    memo.create_prompt_memo(args.args)
+    require('memo.memo').create_prompt_memo(args.args)
   end, {
     nargs = 1,
     desc = "Create a new prompt memo",
   })
 
   api.nvim_create_user_command("MemoNewCode", function(args)
-    local parts = vim.split(args.args, " ", { plain = true })
-    if #parts < 2 then
-      vim.notify("Usage: MemoNewCode language title", vim.log.levels.ERROR)
-      return
+    if args.args == "" then
+      -- Interactive mode
+      M.interactive_code_memo()
+    else
+      -- Traditional mode with arguments
+      local parts = vim.split(args.args, " ", { plain = true })
+      if #parts < 2 then
+        vim.notify("Usage: MemoNewCode language title", vim.log.levels.ERROR)
+        return
+      end
+      local lang = parts[1]
+      local title = table.concat({ unpack(parts, 2) }, " ")
+      require('memo.memo').create_code_memo(lang, title)
     end
-    local lang = parts[1]
-    local title = table.concat({ unpack(parts, 2) }, " ")
-    memo.create_code_memo(lang, title)
   end, {
-    nargs = "+",
+    nargs = "?",
     desc = "Create a new code memo",
     complete = function(arg_lead, cmd_line, cursor_pos)
       local cmd_parts = vim.split(cmd_line, " ", { plain = true })
       if #cmd_parts == 2 then
-        return utils.complete_languages(arg_lead, cmd_line, cursor_pos)
+        return require('memo.utils').complete_languages(arg_lead, cmd_line, cursor_pos)
       end
       return {}
     end,
   })
 
   -- Periodic memo commands
+  api.nvim_create_user_command("MemoOpenDaily", function()
+    require('memo.periodic').open_daily_memo()
+  end, {
+    desc = "Open daily memo",
+  })
+
   api.nvim_create_user_command("MemoOpenWeekly", function()
-    periodic.open_weekly_memo()
+    require('memo.periodic').open_weekly_memo()
   end, {
     desc = "Open weekly memo",
   })
 
   api.nvim_create_user_command("MemoOpenMonthly", function()
-    periodic.open_monthly_memo()
+    require('memo.periodic').open_monthly_memo()
   end, {
     desc = "Open monthly memo",
   })
 
   api.nvim_create_user_command("MemoOpenYearly", function()
-    periodic.open_yearly_memo()
+    require('memo.periodic').open_yearly_memo()
   end, {
     desc = "Open yearly memo",
   })
 
   -- FZF commands
   api.nvim_create_user_command("FzfMemoList", function()
-    search.fzf_memo_list()
+    require('memo.search').fzf_memo_list()
   end, {
     desc = "List memos with fzf",
   })
 
   api.nvim_create_user_command("FzfMemoGrep", function()
-    search.fzf_memo_grep()
+    require('memo.search').fzf_memo_grep()
   end, {
     desc = "Grep memos with fzf",
   })
 
   api.nvim_create_user_command("FzfMemoTags", function()
-    search.fzf_memo_tags()
+    require('memo.search').fzf_memo_tags()
   end, {
     desc = "Search memo tags with fzf",
   })
 
   -- Git commands
   api.nvim_create_user_command("MemoGitStage", function()
-    git.git_stage()
+    require('memo.git').git_stage()
   end, {
     desc = "Stage changed memo files",
   })
 
   api.nvim_create_user_command("MemoGitStageAll", function()
-    git.git_stage_all()
+    require('memo.git').git_stage_all()
   end, {
     desc = "Stage all memo files",
   })
 
   api.nvim_create_user_command("MemoGitCommit", function(args)
-    git.git_commit(args.args)
+    require('memo.git').git_commit(args.args)
   end, {
     nargs = "?",
     desc = "Commit memo changes",
   })
 
   api.nvim_create_user_command("MemoGitCommitAll", function(args)
-    git.git_commit_all(args.args)
+    require('memo.git').git_commit_all(args.args)
   end, {
     nargs = "?",
     desc = "Stage and commit all memo changes",
   })
 
   api.nvim_create_user_command("MemoGitSyncPush", function()
-    git.git_sync_push()
+    require('memo.git').git_sync_push()
   end, {
     desc = "Push memo changes to remote",
   })
 
   api.nvim_create_user_command("MemoGitSyncPull", function()
-    git.git_sync_pull()
+    require('memo.git').git_sync_pull()
   end, {
     desc = "Pull memo changes from remote",
   })
 
   api.nvim_create_user_command("MemoGitShowStatus", function()
-    git.git_show_status()
+    require('memo.git').git_show_status()
   end, {
     desc = "Show git status for memo repository",
   })
@@ -155,12 +256,13 @@ function M.setup()
   -- Set up keymaps
   local keymaps = {
     -- Memo creation
-    { "n", "<leader>mn",   "<cmd>MemoNew ",              { desc = "Create new general memo", noremap = true } },
-    { "n", "<leader>mnw",  "<cmd>MemoNewWork ",          { desc = "Create new work memo", noremap = true } },
-    { "n", "<leader>mnp",  "<cmd>MemoNewPrompt ",        { desc = "Create new prompt memo", noremap = true } },
-    { "n", "<leader>mnc",  "<cmd>MemoNewCode ",          { desc = "Create new code memo", noremap = true } },
+    { "n", "<leader>mnn",  ":MemoNew ",                  { desc = "Create new general memo", noremap = true } },
+    { "n", "<leader>mnw",  ":MemoNewWork<CR>",           { desc = "Create new work memo (interactive)", noremap = true } },
+    { "n", "<leader>mnp",  ":MemoNewPrompt ",            { desc = "Create new prompt memo", noremap = true } },
+    { "n", "<leader>mnc",  ":MemoNewCode<CR>",           { desc = "Create new code memo (interactive)", noremap = true } },
 
     -- Periodic memos
+    { "n", "<leader>md",   "<cmd>MemoOpenDaily<CR>",     { desc = "Open daily memo", noremap = true } },
     { "n", "<leader>mw",   "<cmd>MemoOpenWeekly<CR>",    { desc = "Open weekly memo", noremap = true } },
     { "n", "<leader>mm",   "<cmd>MemoOpenMonthly<CR>",   { desc = "Open monthly memo", noremap = true } },
     { "n", "<leader>my",   "<cmd>MemoOpenYearly<CR>",    { desc = "Open yearly memo", noremap = true } },
