@@ -1,0 +1,155 @@
+*memo.txt*  Neovimのメモ管理プラグイン
+
+                       MEMO.NVIM REFERENCE MANUAL
+
+==============================================================================
+目次                                                          *memo-contents*
+
+1. 紹介 ........................... |memo-introduction|
+2. インストール ................... |memo-installation|
+3. 設定 ........................... |memo-configuration|
+4. コマンド ....................... |memo-commands|
+5. キーマップ ..................... |memo-mappings|
+6. その他 ......................... |memo-misc|
+
+==============================================================================
+1. 紹介                                                   *memo-introduction*
+
+memo.nvim は Neovim 上でメモを効率的に管理するためのプラグインです。
+以下の機能を提供します:
+
+- メモの新規作成（general, work, prompt, code）
+- 週間・月間・年間メモの作成
+- fzf-lua を用いたメモの検索・Grep・タグ検索
+- Git 連携（コミット・プッシュ・プル）
+
+==============================================================================
+2. インストール                                           *memo-installation*
+
+依存関係:
+- Neovim 0.7.0以上
+- fzf-lua (https://github.com/ibhagwan/fzf-lua)
+- Git (オプション、バージョン管理機能のため)
+
+packer.nvimを使用する場合:
+>
+  use {
+    'your-username/memo.nvim',
+    requires = { 'ibhagwan/fzf-lua' },
+    config = function()
+      require('memo').setup({
+        -- カスタムオプション (オプション)
+        memo_dir = vim.fn.expand("~/my-notes"),
+      })
+    end
+  }
+<
+
+lazy.nvimを使用する場合:
+>
+  {
+    'your-username/memo.nvim',
+    dependencies = { 'ibhagwan/fzf-lua' },
+    opts = {
+      -- カスタムオプション (オプション)
+      memo_dir = vim.fn.expand("~/my-notes"),
+    },
+  }
+<
+
+==============================================================================
+3. 設定                                                 *memo-configuration*
+
+デフォルト設定:
+>
+  require('memo').setup({
+    memo_dir = vim.fn.expand("~/my-notes"),
+    git_autocommit = false,
+  })
+<
+
+オプション:
+  `memo_dir`       メモを保存するディレクトリ
+  `git_autocommit` 自動コミットを有効にするかどうか (現在は無効)
+
+==============================================================================
+4. コマンド                                                 *memo-commands*
+
+メモ作成コマンド:
+  `:MemoNew <title>`                 一般メモの作成
+  `:MemoNewWork <project> <title>`   ワークメモの作成
+  `:MemoNewPrompt <title>`           プロンプトメモの作成
+  `:MemoNewCode <lang> <title>`      コードメモの作成
+
+定期メモコマンド:
+  `:MemoOpenWeekly`                  週間メモを開く
+  `:MemoOpenMonthly`                 月間メモを開く
+  `:MemoOpenYearly`                  年間メモを開く
+
+検索コマンド:
+  `:FzfMemoList`                     メモ一覧の表示
+  `:FzfMemoGrep`                     メモ内容の全文検索
+  `:FzfMemoTags`                     メモ内の #タグ の検索
+
+Git連携コマンド:
+  `:MemoGitStage`                    変更のあるファイルを追加
+  `:MemoGitStageAll`                 全てのファイルを追加
+  `:MemoGitCommit [message]`         変更をコミット
+  `:MemoGitCommitAll [message]`      全ての変更をステージングしてコミット
+  `:MemoGitSyncPush`                 リモートにプッシュ
+  `:MemoGitSyncPull`                 リモートからプル
+  `:MemoGitShowStatus`               Gitステータスを表示
+
+==============================================================================
+5. キーマップ                                              *memo-mappings*
+
+メモ作成:
+  `<leader>mn`                       一般メモの作成
+  `<leader>mnw`                      ワークメモの作成
+  `<leader>mnp`                      プロンプトメモの作成
+  `<leader>mnc`                      コードメモの作成
+
+定期メモ:
+  `<leader>mw`                       週間メモを開く
+  `<leader>mm`                       月間メモを開く
+  `<leader>my`                       年間メモを開く
+
+検索:
+  `<leader>ml`                       メモ一覧の表示
+  `<leader>mgg`                      メモ内容の全文検索
+  `<leader>mgt`                      メモ内の #タグ の検索
+
+Git連携:
+  `<leader>mga`                      変更のあるファイルを追加
+  `<leader>mgA`                      全てのファイルを追加
+  `<leader>mgc`                      変更をコミット
+  `<leader>mgC`                      全ての変更をステージングしてコミット
+  `<leader>mgsh`                     リモートにプッシュ
+  `<leader>mgll`                     リモートからプル
+  `<leader>mgst`                     Gitステータスを表示
+
+==============================================================================
+6. その他                                                    *memo-misc*
+
+ディレクトリ構造:
+>
+  my-notes/
+  ├── todo/
+  ├── prompt/
+  ├── note/
+  │   ├── work/
+  │   │   ├── project1/
+  │   │   └── project2/
+  │   └── general/
+  └── code/
+      ├── python/
+      ├── javascript/
+      └── other_language/
+<
+
+補完機能:
+- ワークメモのプロジェクト名は既存のディレクトリを基に補完
+- コードメモの言語は既存のディレクトリを基に補完
+
+==============================================================================
+vim:tw=78:ts=8:ft=help:norl:
