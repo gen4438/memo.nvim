@@ -127,7 +127,7 @@ function M.git_sync_pull()
   end
 end
 
--- Show git status
+-- Show git status with return to original directory
 function M.git_show_status()
   local cfg = config.get()
   local memo_dir = vim.fn.expand(cfg.memo_dir)
@@ -138,9 +138,17 @@ function M.git_show_status()
 
   if has_fugitive then
     -- Use fugitive if available
+    -- Store current buffer to return to it later
+    local current_buf = vim.api.nvim_get_current_buf()
+
+    -- Execute Git command in memo directory
     vim.cmd("cd " .. memo_dir)
     vim.cmd("Git")
-    -- Don't switch back to the original directory as Git opens in a new buffer
+
+    -- Return to original directory after fugitive buffer is shown
+    vim.defer_fn(function()
+      vim.cmd("cd " .. current_dir)
+    end, 100) -- Small delay to ensure Git command completes
   else
     -- Change to memo directory
     vim.cmd("cd " .. memo_dir)
