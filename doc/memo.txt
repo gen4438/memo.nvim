@@ -1,66 +1,68 @@
-*memo.txt*  Neovimのメモ管理プラグイン
+*memo.txt*  Neovim memo management plugin
 
                        MEMO.NVIM REFERENCE MANUAL
 
 ==============================================================================
-目次                                                          *memo-contents*
+Contents                                                       *memo-contents*
 
-1. 紹介 ........................... |memo-introduction|
-2. インストール ................... |memo-installation|
-3. 設定 ........................... |memo-configuration|
-4. コマンド ....................... |memo-commands|
-5. キーマップ ..................... |memo-mappings|
-6. その他 ......................... |memo-misc|
-
-==============================================================================
-1. 紹介                                                   *memo-introduction*
-
-memo.nvim は Neovim 上でメモを効率的に管理するためのプラグインです。
-以下の機能を提供します:
-
-- メモの新規作成（general, work, prompt, code）
-- 週間・月間・年間メモの作成
-- fzf-lua を用いたメモの検索・Grep・タグ検索
-- Git 連携（コミット・プッシュ・プル）
+1. Introduction ..................... |memo-introduction|
+2. Installation ..................... |memo-installation|
+3. Configuration .................... |memo-configuration|
+4. Commands ......................... |memo-commands|
+5. Keymaps .......................... |memo-mappings|
+6. Other ............................ |memo-misc|
 
 ==============================================================================
-2. インストール                                           *memo-installation*
+1. Introduction                                              *memo-introduction*
 
-依存関係:
-- Neovim 0.7.0以上
+memo.nvim is a Neovim plugin for efficiently managing memos.
+It provides the following features:
+
+- Create different types of memos (general, work, prompt, code)
+- Generate periodic memos (daily, weekly, monthly, yearly)
+- Todo list management
+- fzf-lua integration for searching and grepping memos
+- Git integration (commit, push, pull)
+
+==============================================================================
+2. Installation                                              *memo-installation*
+
+Dependencies:
+- Neovim 0.7.0+ (required for `vim.keymap.set`)
 - fzf-lua (https://github.com/ibhagwan/fzf-lua)
-- Git (オプション、バージョン管理機能のため)
+- Git (optional, for version control features)
+- fugitive.vim (optional, for enhanced Git status)
 
-packer.nvimを使用する場合:
+Using packer.nvim:
 >
   use {
     'your-username/memo.nvim',
     requires = { 'ibhagwan/fzf-lua' },
     config = function()
       require('memo').setup({
-        -- カスタムオプション (オプション)
+        -- Custom options (optional)
         memo_dir = vim.fn.expand("~/my-notes"),
       })
     end
   }
 <
 
-lazy.nvimを使用する場合:
+Using lazy.nvim:
 >
   {
     'your-username/memo.nvim',
     dependencies = { 'ibhagwan/fzf-lua' },
     opts = {
-      -- カスタムオプション (オプション)
+      -- Custom options (optional)
       memo_dir = vim.fn.expand("~/my-notes"),
     },
   }
 <
 
 ==============================================================================
-3. 設定                                                 *memo-configuration*
+3. Configuration                                            *memo-configuration*
 
-デフォルト設定:
+Default configuration:
 >
   require('memo').setup({
     memo_dir = vim.fn.expand("~/my-notes"),
@@ -68,75 +70,82 @@ lazy.nvimを使用する場合:
   })
 <
 
-オプション:
-  `memo_dir`       メモを保存するディレクトリ
-  `git_autocommit` 自動コミットを有効にするかどうか (現在は無効)
+Options:
+  `memo_dir`       Directory to store memos
+  `git_autocommit` Enable auto-commit (currently disabled)
 
 ==============================================================================
-4. コマンド                                                 *memo-commands*
+4. Commands                                                      *memo-commands*
 
-メモ作成コマンド:
-  `:MemoNew <title>`                  一般メモの作成
-  `:MemoNewWork [project] [title]`    ワークメモの作成 (引数なしで対話的に選択)
-  `:MemoNewPrompt <title>`            プロンプトメモの作成
-  `:MemoNewCode [lang] [title]`       コードメモの作成 (引数なしで対話的に選択)
+Memo Creation Commands:
+  `:MemoNew <title>`                  Create a general memo
+  `:MemoNewWork [project] [title]`    Create a work memo (interactive if no args)
+  `:MemoNewPrompt <title>`            Create a prompt memo
+  `:MemoNewCode [lang] [title]`       Create a code memo (interactive if no args)
 
-定期メモコマンド:
-  `:MemoOpenDaily`                   Daily memo
-  `:MemoOpenWeekly`                  Weekly memo
-  `:MemoOpenMonthly`                 Monthly memo
-  `:MemoOpenYearly`                  Yearly memo
+Todo and Periodic Memo Commands:
+  `:MemoOpenTodo`                     Open todo list
+  `:MemoOpenDaily`                    Open daily memo
+  `:MemoOpenWeekly`                   Open weekly memo
+  `:MemoOpenMonthly`                  Open monthly memo
+  `:MemoOpenYearly`                   Open yearly memo
 
-検索コマンド:
-  `:FzfMemoList`                     メモ一覧の表示
-  `:FzfMemoGrep`                     メモ内容の全文検索
-  `:FzfMemoTags`                     メモ内の #タグ の検索
+Note: Periodic memos are created as buffers only and are saved to disk only 
+when you explicitly save them. Canceling the buffer with `:q` will discard 
+changes without creating a file.
 
-Git連携コマンド:
-  `:MemoGitStage`                    変更のあるファイルを追加
-  `:MemoGitStageAll`                 全てのファイルを追加
-  `:MemoGitCommit [message]`         変更をコミット
-  `:MemoGitCommitAll [message]`      全ての変更をステージングしてコミット
-  `:MemoGitSyncPush`                 リモートにプッシュ
-  `:MemoGitSyncPull`                 リモートからプル
-  `:MemoGitShowStatus`               Gitステータスを表示
+Search Commands:
+  `:FzfMemoList`                     List all memos
+  `:FzfMemoGrep`                     Full-text search of memos
+  `:FzfMemoTags`                     Search for #tags in memos
+
+Git Integration Commands:
+  `:MemoGitStage`                    Add changed files
+  `:MemoGitStageAll`                 Add all files
+  `:MemoGitCommit [message]`         Stage changed files and commit
+  `:MemoGitCommitAll [message]`      Stage and commit all changes
+  `:MemoGitSyncPush`                 Push to remote
+  `:MemoGitSyncPull`                 Pull from remote
+  `:MemoGitShowStatus`               Show Git status (uses fugitive if available)
 
 ==============================================================================
-5. キーマップ                                              *memo-mappings*
+5. Keymaps                                                       *memo-mappings*
 
-メモ作成:
+Memo Creation:
   `<leader>mnn`                      Create general memo
   `<leader>mnw`                      Create work memo (interactive)
   `<leader>mnp`                      Create prompt memo
   `<leader>mnc`                      Create code memo (interactive)
 
-定期メモ:
+Todo and Periodic Memos:
+  `<leader>mt`                       Open todo list
   `<leader>md`                       Open daily memo
   `<leader>mw`                       Open weekly memo
   `<leader>mm`                       Open monthly memo
   `<leader>my`                       Open yearly memo
 
-検索:
-  `<leader>ml`                       メモ一覧の表示
-  `<leader>mgg`                      メモ内容の全文検索
-  `<leader>mgt`                      メモ内の #タグ の検索
+Search:
+  `<leader>ml`                       List memos with fzf
+  `<leader>mgg`                      Grep memos with fzf
+  `<leader>mgt`                      Search memo tags with fzf
 
-Git連携:
-  `<leader>mga`                      変更のあるファイルを追加
-  `<leader>mgA`                      全てのファイルを追加
-  `<leader>mgc`                      変更をコミット
-  `<leader>mgC`                      全ての変更をステージングしてコミット
-  `<leader>mgsh`                     リモートにプッシュ
-  `<leader>mgll`                     リモートからプル
-  `<leader>mgst`                     Gitステータスを表示
+Git Integration:
+  `<leader>mga`                      Stage changed memo files
+  `<leader>mgA`                      Stage all memo files
+  `<leader>mgc`                      Stage and commit memo changes
+  `<leader>mgC`                      Stage and commit all memo changes
+  `<leader>mgsh`                     Push memo changes to remote
+  `<leader>mgll`                     Pull memo changes from remote
+  `<leader>mgst`                     Show git status for memo repository
 
 ==============================================================================
-6. その他                                                    *memo-misc*
+6. Other                                                            *memo-misc*
 
-ディレクトリ構造:
+Directory Structure:
 >
   my-notes/
   ├── todo/
+  │   └── todo.md           # Todo list
   ├── prompt/
   ├── note/
   │   ├── work/
@@ -149,9 +158,13 @@ Git連携:
       └── other_language/
 <
 
-補完機能:
-- ワークメモのプロジェクト名は既存のディレクトリを基に補完
-- コードメモの言語は既存のディレクトリを基に補完
+Interactive Selection:
+- When creating work memos or code memos interactively, you can select existing
+  projects/languages or create new ones with the "+ Create new" option
+
+Completion Features:
+- Work memo project names are auto-completed based on existing directories
+- Code memo languages are auto-completed based on existing directories
 
 ==============================================================================
 vim:tw=78:ts=8:ft=help:norl:
