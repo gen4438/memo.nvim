@@ -50,6 +50,9 @@ end
 
 -- Commit changes
 function M.git_commit(message)
+  -- First stage changed files
+  M.git_stage()
+
   if message == nil or message == "" then
     message = "update memos"
   end
@@ -130,43 +133,44 @@ function M.git_show_status()
   local memo_dir = vim.fn.expand(cfg.memo_dir)
   local current_dir = vim.fn.getcwd()
 
-  -- Change to memo directory
-  vim.cmd("cd " .. memo_dir)
+  -- Check if fugitive is available
+  local has_fugitive = pcall(vim.cmd, "silent! command Git")
 
-  -- Run git status and capture output
-  local result = vim.fn.system("git status")
-
-  -- Go back to original directory
-  vim.cmd("cd " .. current_dir)
-
-  -- Display result in a floating window
-  if vim.v.shell_error ~= 0 then
-    vim.notify("Git status failed: " .. result, vim.log.levels.ERROR)
+  if has_fugitive then
+    -- Use fugitive if available
+    vim.cmd("cd " .. memo_dir)
+    vim.cmd("Git")
+    -- Don't switch back to the original directory as Git opens in a new buffer
   else
-    -- Create a scratch buffer for the git status output
-    local buf = vim.api.nvim_create_buf(false, true)
-    vim.api.nvim_buf_set_lines(buf, 0, -1, false, vim.split(result, "\n"))
+    -- Change to memo directory
+    vim.cmd("cd " .. memo_dir)
 
-    -- Open in a floating window
-    local width = math.min(80, vim.o.columns - 4)
-    local height = math.min(20, vim.o.lines - 4)
-    local win = vim.api.nvim_open_win(buf, true, {
-      relative = "editor",
-      width = width,
-      height = height,
-      row = math.floor((vim.o.lines - height) / 2),
-      col = math.floor((vim.o.columns - width) / 2),
-      style = "minimal",
-      border = "rounded",
-    })
+    -- Run git status and capture output
+    local result = vim.fn.system("git status")
 
-    -- Set buffer options
-    vim.api.nvim_buf_set_option(buf, "modifiable", false)
-    vim.api.nvim_buf_set_option(buf, "bufhidden", "wipe")
-    vim.api.nvim_win_set_option(win, "wrap", true)
+    -- Go back to original directory
+    vim.cmd("cd " .. current_dir)
 
-    -- Add a keymap to close the window with 'q'
-    vim.api.nvim_buf_set_keymap(buf, "n", "q", "<cmd>close<CR>", { noremap = true, silent = true })
+    if vim.v.shell_error ~= 0 then
+      vim.notify("Git status failed: " .. result, vim.log.levels.ERROR)
+    else
+      -- Create a scratch buffer for the git status output
+      vim.cmd("new")
+      local buf = vim.api.nvim_get_current_buf()
+      vim.api.nvim_buf_set_lines(buf, 0, -1, false, vim.split(result, "\n"))
+
+      -- Set buffer options
+      vim.api.nvim_buf_set_option(buf, "modifiable", false)
+      vim.api.nvim_buf_set_option(buf, "buftype", "nofile")
+      vim.api.nvim_buf_set_option(buf, "bufhidden", "wipe")
+      vim.api.nvim_buf_set_option(buf, "filetype", "git")
+
+      -- Set buffer name
+      vim.api.nvim_buf_set_name(buf, "git-status")
+
+      -- Add a keymap to close the window with 'q'
+      vim.api.nvim_buf_set_keymap(buf, "n", "q", "<cmd>bdelete<CR>", { noremap = true, silent = true })
+    end
   end
 end
 

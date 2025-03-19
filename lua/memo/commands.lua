@@ -4,6 +4,44 @@ local api = vim.api
 
 local M = {}
 
+-- Function to open or create todo.md
+function M.open_todo()
+  local memo = require('memo.memo')
+  local utils = require('memo.utils')
+  local cfg = require('memo.config').get()
+
+  -- Create todo directory
+  local todo_dir = vim.fn.expand(cfg.memo_dir .. "/todo")
+  utils.ensure_dir_exists(todo_dir)
+
+  -- Set the filepath
+  local filepath = todo_dir .. "/todo.md"
+
+  -- Open the file in a new buffer
+  vim.cmd("edit " .. filepath)
+
+  -- If the file doesn't exist yet, set up a template in the buffer
+  if vim.fn.filereadable(filepath) == 0 then
+    local lines = {
+      "# Todo List",
+      "",
+      "## Today",
+      "",
+      "- [ ] ",
+      "",
+      "## This Week",
+      "",
+      "- [ ] ",
+      "",
+      "## Backlog",
+      "",
+      "- [ ] "
+    }
+    vim.api.nvim_buf_set_lines(0, 0, -1, false, lines)
+    -- File will only be created when the user explicitly saves
+  end
+end
+
 -- Interactive memo creation functions
 function M.interactive_work_memo()
   local memo = require('memo.memo')
@@ -12,40 +50,44 @@ function M.interactive_work_memo()
   -- Get list of available projects
   local projects = utils.complete_project_names("", "", 0)
 
+  -- Add option for creating a new project
+  table.insert(projects, 1, "+ Create new project")
+
   -- Show project selection
-  if vim.tbl_isempty(projects) then
-    -- If no projects exist, prompt to create a new one
-    vim.ui.input({
-      prompt = "No projects found. Enter new project name: ",
-    }, function(new_project)
-      if new_project and new_project ~= "" then
-        -- Now ask for a title
-        vim.ui.input({
-          prompt = "Enter memo title: ",
-        }, function(title)
-          if title and title ~= "" then
-            memo.create_work_memo(new_project, title)
-          end
-        end)
-      end
-    end)
-  else
-    -- Select from existing projects
-    vim.ui.select(projects, {
-      prompt = "Select project: ",
-    }, function(project)
-      if project then
-        -- Now ask for a title
-        vim.ui.input({
-          prompt = "Enter memo title: ",
-        }, function(title)
-          if title and title ~= "" then
-            memo.create_work_memo(project, title)
-          end
-        end)
-      end
-    end)
-  end
+  vim.ui.select(projects, {
+    prompt = "Select project or create new: ",
+  }, function(selected)
+    if not selected then
+      return
+    end
+
+    if selected == "+ Create new project" then
+      -- Prompt for new project name
+      vim.ui.input({
+        prompt = "Enter new project name: ",
+      }, function(new_project)
+        if new_project and new_project ~= "" then
+          -- Now ask for a title
+          vim.ui.input({
+            prompt = "Enter memo title: ",
+          }, function(title)
+            if title and title ~= "" then
+              memo.create_work_memo(new_project, title)
+            end
+          end)
+        end
+      end)
+    else
+      -- Selected an existing project
+      vim.ui.input({
+        prompt = "Enter memo title: ",
+      }, function(title)
+        if title and title ~= "" then
+          memo.create_work_memo(selected, title)
+        end
+      end)
+    end
+  end)
 end
 
 function M.interactive_code_memo()
@@ -55,40 +97,44 @@ function M.interactive_code_memo()
   -- Get list of available languages
   local languages = utils.complete_languages("", "", 0)
 
+  -- Add option for creating a new language
+  table.insert(languages, 1, "+ Create new language")
+
   -- Show language selection
-  if vim.tbl_isempty(languages) then
-    -- If no languages exist, prompt to create a new one
-    vim.ui.input({
-      prompt = "No language directories found. Enter language name: ",
-    }, function(new_lang)
-      if new_lang and new_lang ~= "" then
-        -- Now ask for a title
-        vim.ui.input({
-          prompt = "Enter memo title: ",
-        }, function(title)
-          if title and title ~= "" then
-            memo.create_code_memo(new_lang, title)
-          end
-        end)
-      end
-    end)
-  else
-    -- Select from existing languages
-    vim.ui.select(languages, {
-      prompt = "Select language: ",
-    }, function(lang)
-      if lang then
-        -- Now ask for a title
-        vim.ui.input({
-          prompt = "Enter memo title: ",
-        }, function(title)
-          if title and title ~= "" then
-            memo.create_code_memo(lang, title)
-          end
-        end)
-      end
-    end)
-  end
+  vim.ui.select(languages, {
+    prompt = "Select language or create new: ",
+  }, function(selected)
+    if not selected then
+      return
+    end
+
+    if selected == "+ Create new language" then
+      -- Prompt for new language name
+      vim.ui.input({
+        prompt = "Enter new language name: ",
+      }, function(new_lang)
+        if new_lang and new_lang ~= "" then
+          -- Now ask for a title
+          vim.ui.input({
+            prompt = "Enter memo title: ",
+          }, function(title)
+            if title and title ~= "" then
+              memo.create_code_memo(new_lang, title)
+            end
+          end)
+        end
+      end)
+    else
+      -- Selected an existing language
+      vim.ui.input({
+        prompt = "Enter memo title: ",
+      }, function(title)
+        if title and title ~= "" then
+          memo.create_code_memo(selected, title)
+        end
+      end)
+    end
+  end)
 end
 
 -- Setup commands and keymaps
@@ -101,6 +147,12 @@ function M.setup()
   end, {
     nargs = 1,
     desc = "Create a new general memo",
+  })
+
+  api.nvim_create_user_command("MemoOpenTodo", function()
+    M.open_todo()
+  end, {
+    desc = "Open todo list",
   })
 
   api.nvim_create_user_command("MemoNewWork", function(args)
@@ -257,6 +309,7 @@ function M.setup()
   local keymaps = {
     -- Memo creation
     { "n", "<leader>mnn",  ":MemoNew ",                  { desc = "Create new general memo", noremap = true } },
+    { "n", "<leader>mt",   "<cmd>MemoOpenTodo<CR>",      { desc = "Open todo list", noremap = true } },
     { "n", "<leader>mnw",  ":MemoNewWork<CR>",           { desc = "Create new work memo (interactive)", noremap = true } },
     { "n", "<leader>mnp",  ":MemoNewPrompt ",            { desc = "Create new prompt memo", noremap = true } },
     { "n", "<leader>mnc",  ":MemoNewCode<CR>",           { desc = "Create new code memo (interactive)", noremap = true } },

@@ -19,17 +19,24 @@ function M.open_daily_memo()
   local filename = year .. "-" .. month .. "-" .. day .. "_daily.md"
   local filepath = month_dir .. "/" .. filename
 
-  -- Create file if it doesn't exist
-  if vim.fn.filereadable(filepath) == 0 then
-    local file = io.open(filepath, "w")
-    if file then
-      file:write("# Daily Memo: " .. date_format .. "\n\n## Tasks\n\n- [ ] \n\n## Notes\n\n")
-      file:close()
-    end
-  end
-
-  -- Open file in editor
+  -- Open a new buffer with the file path
   vim.cmd("edit " .. filepath)
+
+  -- If the file doesn't exist yet, set up template in the buffer only
+  if vim.fn.filereadable(filepath) == 0 then
+    local lines = {
+      "# Daily Memo: " .. date_format,
+      "",
+      "## Tasks",
+      "",
+      "- [ ] ",
+      "",
+      "## Notes",
+      ""
+    }
+    vim.api.nvim_buf_set_lines(0, 0, -1, false, lines)
+    -- File will only be created when the user explicitly saves
+  end
 end
 
 -- Open or create weekly memo
@@ -39,24 +46,31 @@ function M.open_weekly_memo()
 
   -- Create directory path
   local year_dir = vim.fn.expand(cfg.memo_dir .. "/note/general/" .. year)
-  utils.ensure_dir_exists(year_dir)
+  local month_dir = vim.fn.expand(year_dir .. "/" .. month)
+  utils.ensure_dir_exists(month_dir)
 
   -- Create filename
   local filename = year .. "-w" .. iso_week .. "_weekly.md"
-  local filepath = year_dir .. "/" .. filename
+  local filepath = month_dir .. "/" .. filename
 
-  -- Create file if it doesn't exist
-  if vim.fn.filereadable(filepath) == 0 then
-    local file = io.open(filepath, "w")
-    if file then
-      file:write("# Weekly Memo: " ..
-      week_start_format .. " - " .. week_end_format .. "\n\n## Goals\n\n- [ ] \n\n## Summary\n\n")
-      file:close()
-    end
-  end
-
-  -- Open file in editor
+  -- Open a new buffer with the file path
   vim.cmd("edit " .. filepath)
+
+  -- If the file doesn't exist yet, set up template in the buffer only
+  if vim.fn.filereadable(filepath) == 0 then
+    local lines = {
+      "# Weekly Memo: " .. week_start_format .. " - " .. week_end_format,
+      "",
+      "## Goals",
+      "",
+      "- [ ] ",
+      "",
+      "## Summary",
+      ""
+    }
+    vim.api.nvim_buf_set_lines(0, 0, -1, false, lines)
+    -- File will only be created when the user explicitly saves
+  end
 end
 
 -- Open or create monthly memo
@@ -73,18 +87,26 @@ function M.open_monthly_memo()
   local filename = year .. "-" .. month .. "_monthly.md"
   local filepath = month_dir .. "/" .. filename
 
-  -- Create file if it doesn't exist
-  if vim.fn.filereadable(filepath) == 0 then
-    local file = io.open(filepath, "w")
-    if file then
-      file:write("# Monthly Memo: " ..
-      month_format .. "\n\n## Monthly Goals\n\n- [ ] \n\n## Achievements\n\n## Reflection\n\n")
-      file:close()
-    end
-  end
-
-  -- Open file in editor
+  -- Open a new buffer with the file path
   vim.cmd("edit " .. filepath)
+
+  -- If the file doesn't exist yet, set up template in the buffer only
+  if vim.fn.filereadable(filepath) == 0 then
+    local lines = {
+      "# Monthly Memo: " .. month_format,
+      "",
+      "## Monthly Goals",
+      "",
+      "- [ ] ",
+      "",
+      "## Achievements",
+      "",
+      "## Reflection",
+      ""
+    }
+    vim.api.nvim_buf_set_lines(0, 0, -1, false, lines)
+    -- File will only be created when the user explicitly saves
+  end
 end
 
 -- Open or create yearly memo
@@ -100,17 +122,26 @@ function M.open_yearly_memo()
   local filename = year .. "_yearly.md"
   local filepath = year_dir .. "/" .. filename
 
-  -- Create file if it doesn't exist
-  if vim.fn.filereadable(filepath) == 0 then
-    local file = io.open(filepath, "w")
-    if file then
-      file:write("# Yearly Memo: " .. year .. "\n\n## Annual Goals\n\n- [ ] \n\n## Key Projects\n\n## Year Review\n\n")
-      file:close()
-    end
-  end
-
-  -- Open file in editor
+  -- Open a new buffer with the file path
   vim.cmd("edit " .. filepath)
+
+  -- If the file doesn't exist yet, set up template in the buffer only
+  if vim.fn.filereadable(filepath) == 0 then
+    local lines = {
+      "# Yearly Memo: " .. year,
+      "",
+      "## Annual Goals",
+      "",
+      "- [ ] ",
+      "",
+      "## Key Projects",
+      "",
+      "## Year Review",
+      ""
+    }
+    vim.api.nvim_buf_set_lines(0, 0, -1, false, lines)
+    -- File will only be created when the user explicitly saves
+  end
 end
 
 return M
