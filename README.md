@@ -23,7 +23,7 @@ Neovim plugin for efficient memo management with fzf-lua integration and Git syn
 
 ```lua
 use {
-  'your-username/memo.nvim',
+  'gen4438/memo.nvim',
   requires = { 'ibhagwan/fzf-lua' },
   config = function()
     require('memo').setup({
@@ -38,7 +38,7 @@ use {
 
 ```lua
 {
-  'your-username/memo.nvim',
+  'gen4438/memo.nvim',
   dependencies = { 'ibhagwan/fzf-lua' },
   opts = {
     -- Custom options (optional)
