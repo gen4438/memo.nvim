@@ -10,7 +10,8 @@ Contents                                                       *memo-contents*
 3. Configuration .................... |memo-configuration|
 4. Commands ......................... |memo-commands|
 5. Keymaps .......................... |memo-mappings|
-6. Other ............................ |memo-misc|
+6. Templates ........................ |memo-templates|
+7. Other ............................ |memo-misc|
 
 ==============================================================================
 1. Introduction                                              *memo-introduction*
@@ -23,6 +24,8 @@ It provides the following features:
 - Todo list management
 - fzf-lua integration for searching and grepping memos
 - Git integration (commit, push, pull)
+- Customizable templates with placeholders
+- Configurable date formats
 
 ==============================================================================
 2. Installation                                              *memo-installation*
@@ -36,12 +39,15 @@ Dependencies:
 Using packer.nvim:
 >
   use {
-    'your-username/memo.nvim',
+    'gen4438/memo.nvim',
     requires = { 'ibhagwan/fzf-lua' },
     config = function()
       require('memo').setup({
         -- Custom options (optional)
         memo_dir = vim.fn.expand("~/my-notes"),
+        -- Template options
+        template_dir = vim.fn.expand("~/my-notes/templates"),
+        date_format = "%Y/%m/%d",
       })
     end
   }
@@ -50,11 +56,14 @@ Using packer.nvim:
 Using lazy.nvim:
 >
   {
-    'your-username/memo.nvim',
+    'gen4438/memo.nvim',
     dependencies = { 'ibhagwan/fzf-lua' },
     opts = {
       -- Custom options (optional)
       memo_dir = vim.fn.expand("~/my-notes"),
+      -- Template options
+      template_dir = vim.fn.expand("~/my-notes/templates"),
+      date_format = "%Y/%m/%d",
     },
   }
 <
@@ -65,14 +74,33 @@ Using lazy.nvim:
 Default configuration:
 >
   require('memo').setup({
+    -- Main directory for memos
     memo_dir = vim.fn.expand("~/my-notes"),
+    
+    -- Git settings
     git_autocommit = false,
+    
+    -- Template settings
+    template_dir = vim.fn.expand("~/my-notes/templates"),
+    create_default_templates = true,
+    
+    -- Date format settings (using Lua's os.date format)
+    date_format = "%Y/%m/%d",
+    week_format = "%Y/%m/%d - %Y/%m/%d",
+    month_format = "%Y/%m",
+    year_format = "%Y",
   })
 <
 
 Options:
-  `memo_dir`       Directory to store memos
-  `git_autocommit` Enable auto-commit (currently disabled)
+  `memo_dir`               Directory to store memos
+  `git_autocommit`         Enable auto-commit (currently disabled)
+  `template_dir`           Directory to store templates
+  `create_default_templates` Whether to create default templates on startup
+  `date_format`            Format for dates (using Lua's os.date format)
+  `week_format`            Format for week display
+  `month_format`           Format for month display
+  `year_format`            Format for year display
 
 ==============================================================================
 4. Commands                                                      *memo-commands*
@@ -108,6 +136,9 @@ Git Integration Commands:
   `:MemoGitSyncPull`                 Pull from remote
   `:MemoGitShowStatus`               Show Git status (uses fugitive if available)
 
+Template Management Commands:
+  `:MemoTemplateEdit [type]`          Create or edit a template (interactive if no type)
+
 ==============================================================================
 5. Keymaps                                                       *memo-mappings*
 
@@ -139,13 +170,52 @@ Git Integration:
   `<leader>mgst`                     Show git status for memo repository
 
 ==============================================================================
-6. Other                                                            *memo-misc*
+6. Templates                                                    *memo-templates*
+
+The plugin includes a template system for customizing the content of all memo
+types. Templates are stored in the `template_dir` directory.
+
+Template Placeholders:
+  `{{title}}`        - Title of the memo
+  `{{date}}`         - Current date in date_format
+  `{{week_start}}`   - Start of week in date_format
+  `{{week_end}}`     - End of week in date_format
+  `{{month}}`        - Current month in month_format
+  `{{year}}`         - Current year in year_format
+  `{{project}}`      - Project name (for work memos)
+  `{{language}}`     - Language name (for code memos)
+
+Available Template Types:
+  `general`          - General memos
+  `work`             - Work memos
+  `prompt`           - Prompt memos
+  `code`             - Code memos
+  `daily`            - Daily memos
+  `weekly`           - Weekly memos
+  `monthly`          - Monthly memos
+  `yearly`           - Yearly memos
+  `todo`             - Todo list
+
+To create or edit a template, use:
+  `:MemoTemplateEdit [type]`
+
+If a template doesn't exist, the plugin will:
+1. Copy from plugin's default templates if available
+2. Create one with built-in defaults if no plugin template exists
+3. Open the template file for editing
+
+==============================================================================
+7. Other                                                            *memo-misc*
 
 Directory Structure:
 >
   my-notes/
+  ├── templates/               # Template directory
+  │   ├── general.md           # Template for general memos
+  │   ├── work.md              # Template for work memos
+  │   └── ...                  # Other templates
   ├── todo/
-  │   └── todo.md           # Todo list
+  │   └── todo.md              # Todo list
   ├── prompt/
   ├── note/
   │   ├── work/

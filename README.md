@@ -9,6 +9,8 @@ Neovim plugin for efficient memo management with fzf-lua integration and Git syn
 - Easy todo list management
 - Search memos using fzf-lua
 - Git integration for version control
+- Customizable templates with placeholder variables
+- Configurable date formats
 
 ## Requirements
 
@@ -29,6 +31,9 @@ use {
     require('memo').setup({
       -- Custom options (optional)
       memo_dir = vim.fn.expand("~/my-notes"),
+      -- Template options
+      template_dir = vim.fn.expand("~/my-notes/templates"),
+      date_format = "%Y/%m/%d",
     })
   end
 }
@@ -43,6 +48,9 @@ use {
   opts = {
     -- Custom options (optional)
     memo_dir = vim.fn.expand("~/my-notes"),
+    -- Template options
+    template_dir = vim.fn.expand("~/my-notes/templates"),
+    date_format = "%Y/%m/%d",
   },
 }
 ```
@@ -53,8 +61,12 @@ The plugin creates and manages memos in the following structure:
 
 ```
 my-notes/
+├── templates/               # Template directory
+│   ├── general.md           # Template for general memos
+│   ├── work.md              # Template for work memos
+│   └── ...                  # Other templates
 ├── todo/
-│   └── todo.md           # Todo list
+│   └── todo.md              # Todo list
 ├── prompt/
 ├── note/
 │   ├── work/
@@ -113,6 +125,10 @@ Note: Periodic memos are created as buffers only and are saved to disk only when
 - `:MemoGitSyncPull` - Pull changes from remote
 - `:MemoGitShowStatus` - Show git status for memo repository (uses fugitive.vim if available)
 
+### Template Management
+
+- `:MemoTemplateEdit [type]` - Create or edit a template (interactive if no type specified)
+
 ## Keymaps
 
 ### Memo Creation
@@ -152,10 +168,39 @@ You can customize the plugin by passing options to the setup function:
 
 ```lua
 require('memo').setup({
+  -- Main directory for memos
   memo_dir = vim.fn.expand("~/custom-notes-path"),
+
+  -- Git settings
   git_autocommit = false,
+
+  -- Template settings
+  template_dir = vim.fn.expand("~/my-notes/templates"),
+  create_default_templates = true,
+
+  -- Date format settings (using Lua's os.date format)
+  date_format = "%Y/%m/%d",
+  week_format = "%Y/%m/%d - %Y/%m/%d",
+  month_format = "%Y/%m",
+  year_format = "%Y",
 })
 ```
+
+## Template System
+
+The plugin includes a template system for customizing all memo types. Templates use placeholder variables that are automatically replaced with actual values when creating memos.
+
+### Available Placeholders
+
+- `{{title}}` - Title of the memo
+- `{{date}}` - Current date (based on `date_format`)
+- `{{week_start}}`, `{{week_end}}` - Start/end of current week
+- `{{month}}` - Current month (based on `month_format`)
+- `{{year}}` - Current year
+- `{{project}}` - Project name (for work memos)
+- `{{language}}` - Language name (for code memos)
+
+Default templates are provided for all memo types. You can edit them using the `:MemoTemplateEdit` command.
 
 ## Interactive Selection
 

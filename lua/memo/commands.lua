@@ -9,6 +9,7 @@ function M.open_todo()
   local memo = require('memo.memo')
   local utils = require('memo.utils')
   local cfg = require('memo.config').get()
+  local template = require('memo.template')
 
   -- Create todo directory
   local todo_dir = vim.fn.expand(cfg.memo_dir .. "/todo")
@@ -22,21 +23,8 @@ function M.open_todo()
 
   -- If the file doesn't exist yet, set up a template in the buffer
   if vim.fn.filereadable(filepath) == 0 then
-    local lines = {
-      "# Todo List",
-      "",
-      "## Today",
-      "",
-      "- [ ] ",
-      "",
-      "## This Week",
-      "",
-      "- [ ] ",
-      "",
-      "## Backlog",
-      "",
-      "- [ ] "
-    }
+    local content = template.get_processed_template("todo", {})
+    local lines = vim.split(content, "\n")
     vim.api.nvim_buf_set_lines(0, 0, -1, false, lines)
     -- File will only be created when the user explicitly saves
   end
@@ -213,6 +201,34 @@ function M.setup()
         return require('memo.utils').complete_languages(arg_lead, cmd_line, cursor_pos)
       end
       return {}
+    end,
+  })
+
+  -- Template management command
+  api.nvim_create_user_command("MemoTemplateEdit", function(args)
+    if args.args == "" then
+      -- Show template type selection dialog
+      local template = require('memo.template')
+      local template_types = template.get_template_types()
+
+      vim.ui.select(template_types, {
+        prompt = "Select template to create or edit:",
+      }, function(selected)
+        if selected then
+          template.edit_template(selected)
+        end
+      end)
+    else
+      require('memo.template').edit_template(args.args)
+    end
+  end, {
+    nargs = "?",
+    desc = "Create or edit a template",
+    complete = function(arg_lead, cmd_line, cursor_pos)
+      local template_types = require('memo.template').get_template_types()
+      return vim.tbl_filter(function(item)
+        return item:find(arg_lead) == 1
+      end, template_types)
     end,
   })
 

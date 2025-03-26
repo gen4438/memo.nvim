@@ -2,12 +2,13 @@
 
 local utils = require('memo.utils')
 local config = require('memo.config')
+local template = require('memo.template')
 
 local M = {}
 
 -- Create a general memo
 function M.create_general_memo(title)
-  local year, month, day, _, _, date_format = utils.get_date_parts()
+  local year, month, day = utils.get_date_parts()
   local sanitized_title = utils.sanitize_title(title)
   local cfg = config.get()
 
@@ -19,9 +20,11 @@ function M.create_general_memo(title)
   local filepath = month_dir .. "/" .. filename
 
   if vim.fn.filereadable(filepath) == 0 then
+    local content = template.get_processed_template("general", { title = title })
+
     local file = io.open(filepath, "w")
     if file then
-      file:write("# " .. title .. "\n\nDate: " .. date_format .. "\n\n")
+      file:write(content)
       file:close()
     end
   end
@@ -31,7 +34,7 @@ end
 
 -- Create a work memo for a specific project
 function M.create_work_memo(project_name, title)
-  local year, month, day, _, _, date_format = utils.get_date_parts()
+  local year, month, day = utils.get_date_parts()
   local sanitized_title = utils.sanitize_title(title)
   local cfg = config.get()
 
@@ -42,9 +45,14 @@ function M.create_work_memo(project_name, title)
   local filepath = project_dir .. "/" .. filename
 
   if vim.fn.filereadable(filepath) == 0 then
+    local content = template.get_processed_template("work", {
+      title = title,
+      project = project_name
+    })
+
     local file = io.open(filepath, "w")
     if file then
-      file:write("# " .. title .. "\n\nDate: " .. date_format .. "\nProject: " .. project_name .. "\n\n")
+      file:write(content)
       file:close()
     end
   end
@@ -54,7 +62,7 @@ end
 
 -- Create a prompt memo
 function M.create_prompt_memo(title)
-  local year, month, day, _, _, date_format = utils.get_date_parts()
+  local year, month, day = utils.get_date_parts()
   local sanitized_title = utils.sanitize_title(title)
   local cfg = config.get()
 
@@ -66,9 +74,11 @@ function M.create_prompt_memo(title)
   local filepath = month_dir .. "/" .. filename
 
   if vim.fn.filereadable(filepath) == 0 then
+    local content = template.get_processed_template("prompt", { title = title })
+
     local file = io.open(filepath, "w")
     if file then
-      file:write("# " .. title .. "\n\nDate: " .. date_format .. "\n\n")
+      file:write(content)
       file:close()
     end
   end
@@ -78,7 +88,7 @@ end
 
 -- Create a code memo for a specific language
 function M.create_code_memo(lang, title)
-  local year, month, day, _, _, date_format = utils.get_date_parts()
+  local year, month, day = utils.get_date_parts()
   local sanitized_title = utils.sanitize_title(title)
   local cfg = config.get()
 
@@ -89,10 +99,14 @@ function M.create_code_memo(lang, title)
   local filepath = lang_dir .. "/" .. filename
 
   if vim.fn.filereadable(filepath) == 0 then
+    local content = template.get_processed_template("code", {
+      title = title,
+      language = lang
+    })
+
     local file = io.open(filepath, "w")
     if file then
-      file:write("# " ..
-      title .. " (" .. lang .. ")\n\nDate: " .. date_format .. "\nLanguage: " .. lang .. "\n\n```" .. lang .. "\n\n```\n")
+      file:write(content)
       file:close()
     end
   end
