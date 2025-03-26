@@ -171,9 +171,6 @@ require('memo').setup({
   -- Main directory for memos
   memo_dir = vim.fn.expand("~/custom-notes-path"),
 
-  -- Git settings
-  git_autocommit = false,
-
   -- Template settings
   template_dir = vim.fn.expand("~/my-notes/templates"),
   create_default_templates = true,

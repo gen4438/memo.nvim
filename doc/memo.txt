@@ -77,9 +77,6 @@ Default configuration:
     -- Main directory for memos
     memo_dir = vim.fn.expand("~/my-notes"),
     
-    -- Git settings
-    git_autocommit = false,
-    
     -- Template settings
     template_dir = vim.fn.expand("~/my-notes/templates"),
     create_default_templates = true,
@@ -94,7 +91,6 @@ Default configuration:
 
 Options:
   `memo_dir`               Directory to store memos
-  `git_autocommit`         Enable auto-commit (currently disabled)
   `template_dir`           Directory to store templates
   `create_default_templates` Whether to create default templates on startup
   `date_format`            Format for dates (using Lua's os.date format)

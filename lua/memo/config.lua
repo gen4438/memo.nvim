@@ -5,7 +5,6 @@ local M = {}
 -- Default configuration
 M.values = {
   memo_dir = vim.fn.expand("~/my-notes"),
-  git_autocommit = false,
 
   -- Template settings
   template_dir = vim.fn.expand("~/my-notes/templates"),
