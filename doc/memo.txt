@@ -79,7 +79,7 @@ Default configuration:
     
     -- Template settings
     template_dir = vim.fn.expand("~/my-notes/templates"),
-    create_default_templates = true,
+    create_default_templates = false,
     
     -- Date format settings (using Lua's os.date format)
     date_format = "%Y/%m/%d",

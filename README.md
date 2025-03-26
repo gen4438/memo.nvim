@@ -169,11 +169,11 @@ You can customize the plugin by passing options to the setup function:
 ```lua
 require('memo').setup({
   -- Main directory for memos
-  memo_dir = vim.fn.expand("~/custom-notes-path"),
+  memo_dir = vim.fn.expand("~/my-notes"),
 
   -- Template settings
   template_dir = vim.fn.expand("~/my-notes/templates"),
-  create_default_templates = true,
+  create_default_templates = false,
 
   -- Date format settings (using Lua's os.date format)
   date_format = "%Y/%m/%d",

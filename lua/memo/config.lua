@@ -16,7 +16,7 @@ M.values = {
   year_format = "%Y",
 
   -- Whether to create default templates if they don't exist
-  create_default_templates = true,
+  create_default_templates = false,
 }
 
 -- Setup function to merge user config with defaults
