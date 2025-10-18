@@ -49,7 +49,12 @@ end
 
 -- Sanitize title for filename (replace spaces, remove special chars)
 function M.sanitize_title(title)
-  return title:gsub(" ", "_"):gsub("[^%w_-]", "")
+  -- Replace spaces with underscores
+  local result = title:gsub(" ", "_")
+  -- Remove only filesystem-unsafe characters
+  -- Keeps Japanese and other multibyte characters
+  result = result:gsub('[/<>:"\\|?*%c]', "")
+  return result
 end
 
 -- Complete project names from work directory
