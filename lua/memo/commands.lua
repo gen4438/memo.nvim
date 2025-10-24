@@ -325,6 +325,13 @@ function M.setup()
     desc = "Show git status for memo repository",
   })
 
+  -- AI integration command
+  api.nvim_create_user_command("MemoSetupAI", function()
+    require('memo.ai').setup_ai_templates()
+  end, {
+    desc = "Setup AI prompt templates for Claude Code and GitHub Copilot",
+  })
+
   -- Set up keymaps
   local keymaps = {
     -- Memo creation

@@ -128,6 +128,10 @@ Note: Periodic memos are created as buffers only and are saved to disk only when
 
 - `:MemoTemplateEdit [type]` - Create or edit a template (interactive if no type specified)
 
+### AI Integration
+
+- `:MemoSetupAI` - Setup AI prompt templates for Claude Code and GitHub Copilot (run once)
+
 ## Keymaps
 
 ### Memo Creation
@@ -246,3 +250,126 @@ When creating work memos or experiment notebooks without arguments, you can sele
 ## Completion
 
 - Work memo and experiment notebook project names are auto-completed based on existing directories
+
+## AI Integration
+
+memo.nvim includes built-in AI integration support for Claude Code and GitHub Copilot, providing slash commands and prompts to enhance your note-taking workflow.
+
+### Setup
+
+Run the setup command once to create AI prompt templates in your memo directory:
+
+```vim
+:MemoSetupAI
+```
+
+This creates:
+- `.claude/commands/` - Slash commands for Claude Code (Neovim)
+- `.vscode/prompts/` - Prompts for GitHub Copilot (VSCode)
+- `.github/copilot-instructions.md` - Project-wide Copilot instructions
+
+### Available AI Commands
+
+All commands are available in Japanese and include detailed instructions:
+
+#### 1. expand-experiment
+雑なメモや簡単なコメントを、構造化された実験ノートに展開します。
+
+**使い方 (Claude Code / Neovim)**:
+1. 雑なメモを書く（例: "ResNet50でImageNet。lr=0.001で試す"）
+2. その部分を選択（Visual mode）
+3. `/expand-experiment`
+
+**使い方 (VSCode + GitHub Copilot)**:
+1. 雑なメモを書く
+2. Copilot Chatを開く
+3. `@workspace /expand-experiment` を実行
+
+#### 2. improve-title
+メモのタイトルを分析し、検索しやすく意味のある改善案を3つ提案します。
+
+**使い方**:
+- メモ全体を選択して `/improve-title` を実行
+- または現在のファイルを開いた状態で実行
+
+#### 3. organize-memo
+散らかったメモを整理し、構造化された読みやすい形式に変換します。
+
+**機能**:
+- 重複情報の統合
+- 論理的な並び替え
+- 階層構造の追加
+- TODO項目の抽出
+
+#### 4. summarize-weekly
+今週作成したメモを分析し、週次レビューレポートを自動生成します。
+
+**含まれる内容**:
+- 主な成果
+- プロジェクト別の進捗
+- 実験まとめテーブル
+- 学んだこと・気づき
+- 来週のアクションアイテム
+
+#### 5. compare-experiments
+複数の実験ノートを比較し、パラメータと結果の比較テーブルを生成します。
+
+**使い方**:
+```
+/compare-experiments
+実験ID: exp001, exp003, exp005の結果を比較してください
+```
+
+**出力**:
+- パラメータ比較テーブル
+- 結果（メトリクス）比較テーブル
+- 分析サマリー
+- 次の実験提案
+
+### Workflow Examples
+
+#### Example 1: Quick Experiment Note
+```vim
+" 1. 雑なメモを書く
+実験メモ: resnet学習率変えてみる。0.001と0.0001
+
+" 2. 選択して展開
+[Visual mode で選択] → /expand-experiment
+
+" 3. 構造化された実験ノートが生成される
+```
+
+#### Example 2: Organize Weekly Notes
+```vim
+" 1. 週次メモを開く
+:MemoOpenWeekly
+
+" 2. デイリーメモを参照して /summarize-weekly を実行
+" → 自動的に週次レビューが生成される
+```
+
+#### Example 3: Compare Multiple Experiments
+```vim
+" 実験結果を比較したい場合
+/compare-experiments
+exp001からexp005までの実験結果を比較し、
+最も効果的だったパラメータ設定を分析してください
+```
+
+### Customizing Prompts
+
+All prompt templates are Markdown files and can be easily customized:
+
+**Claude Code**: `.claude/commands/*.md`
+**VSCode Copilot**: `.vscode/prompts/*.md`
+**General Instructions**: `.github/copilot-instructions.md`
+
+Edit these files to adjust the prompts to your specific needs, domain terminology, or workflow preferences.
+
+### Tips for Effective AI Usage
+
+1. **Be Specific**: The more context you provide, the better the AI output
+2. **Iterate**: Start with rough notes, then use AI to expand and refine
+3. **Review**: Always review and edit AI-generated content
+4. **Combine**: Use multiple commands in sequence (expand → organize → improve-title)
+5. **Customize**: Modify the prompt templates to match your research domain
