@@ -16,11 +16,12 @@ local M = {}
 -- Get path to the plugin's default templates directory
 function M.get_plugin_templates_dir()
   -- Use debug.getinfo to find the actual script path
+  -- This file is at lua/memo/template.lua, so we need to go up 3 levels to get to plugin root
   local source = debug.getinfo(1, "S").source
   if source:sub(1, 1) == "@" then
     source = source:sub(2)
   end
-  local plugin_path = vim.fn.fnamemodify(source, ':p:h:h')
+  local plugin_path = vim.fn.fnamemodify(source, ':p:h:h:h')
   return plugin_path .. "/templates"
 end
 
@@ -54,19 +55,39 @@ function M.create_default_templates()
   local template_dir = vim.fn.expand(cfg.template_dir)
   local plugin_template_dir = M.get_plugin_templates_dir()
 
+  -- Debug information
+  vim.notify("Plugin template directory: " .. plugin_template_dir, vim.log.levels.INFO)
+  vim.notify("User template directory: " .. template_dir, vim.log.levels.INFO)
+
   -- Ensure template directory exists
   utils.ensure_dir_exists(template_dir)
 
   -- Copy templates from plugin directory if they don't exist
   local template_types = M.get_template_types()
+
+  if #template_types == 0 then
+    vim.notify("No templates found in plugin directory: " .. plugin_template_dir, vim.log.levels.ERROR)
+    return
+  end
+
+  vim.notify("Found " .. #template_types .. " templates to install", vim.log.levels.INFO)
+
   for _, template_name in ipairs(template_types) do
     local template_path = template_dir .. "/" .. template_name .. ".md"
     local plugin_template_path = plugin_template_dir .. "/" .. template_name .. ".md"
 
     if vim.fn.filereadable(template_path) == 0 and vim.fn.filereadable(plugin_template_path) == 1 then
       -- Copy the file
-      vim.fn.system("cp " .. vim.fn.shellescape(plugin_template_path) .. " " .. vim.fn.shellescape(template_path))
-      vim.notify("Created default template: " .. template_name, vim.log.levels.INFO)
+      local result = vim.fn.system("cp " .. vim.fn.shellescape(plugin_template_path) .. " " .. vim.fn.shellescape(template_path))
+      if vim.v.shell_error == 0 then
+        vim.notify("Created default template: " .. template_name, vim.log.levels.INFO)
+      else
+        vim.notify("Failed to copy template " .. template_name .. ": " .. result, vim.log.levels.ERROR)
+      end
+    elseif vim.fn.filereadable(template_path) == 1 then
+      vim.notify("Template already exists: " .. template_name, vim.log.levels.INFO)
+    else
+      vim.notify("Plugin template not readable: " .. template_name, vim.log.levels.WARN)
     end
   end
 end
