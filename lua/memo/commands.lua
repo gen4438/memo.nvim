@@ -250,6 +250,13 @@ function M.setup()
     end,
   })
 
+  -- Template installation command
+  api.nvim_create_user_command("MemoInstallTemplates", function()
+    require('memo.template').create_default_templates()
+  end, {
+    desc = "Install default templates to user template directory",
+  })
+
   -- Periodic memo commands
   api.nvim_create_user_command("MemoOpenDaily", function()
     require('memo.periodic').open_daily_memo()

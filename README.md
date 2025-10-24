@@ -119,6 +119,9 @@ Note: Periodic memos are created as buffers only and are saved to disk only when
 ### Template Management
 
 - `:MemoTemplateEdit [type]` - Create or edit a template (interactive if no type specified)
+- `:MemoInstallTemplates` - Manually install default templates to your template directory
+
+Note: By default, templates are automatically installed when you first load the plugin. If you encounter "Template not found" errors, run `:MemoInstallTemplates` to manually install them.
 
 ### AI Integration
 
