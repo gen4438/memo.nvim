@@ -43,6 +43,8 @@ local prompt_templates = {
   "organize.md",
   "summarize.md",
   "compare-exp.md",
+  "voice-to-memo.md",
+  "refine.md",
 }
 
 -- AGENTS.md file (unified AI instructions format)

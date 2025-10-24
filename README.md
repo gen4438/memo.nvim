@@ -245,7 +245,7 @@ When creating work memos or experiment notebooks without arguments, you can sele
 
 memo.nvim includes built-in AI integration support for Claude Code and GitHub Copilot, providing slash commands and prompts to enhance your note-taking workflow.
 
-### Setup
+### Quick Start
 
 Run the setup command once to create AI prompt templates in your memo directory:
 
@@ -255,128 +255,27 @@ Run the setup command once to create AI prompt templates in your memo directory:
 
 This creates:
 - `.claude/commands/` - Slash commands for Claude Code (CLI/Neovim)
-- `.github/prompts/` - Slash command prompts for GitHub Copilot (VSCode) in `.prompt.md` format
-- `.github/copilot-instructions.md` - Project-wide Copilot instructions
+- `.github/prompts/` - Slash command prompts for GitHub Copilot (VSCode)
+- `CLAUDE.md` / `.github/copilot-instructions.md` - Project-wide AI instructions
 
-### File Format Differences
+### Available Commands
 
-**Claude Code**:
-- Location: `.claude/commands/*.md`
-- Variables: `$ARGUMENTS`, `$1`, `$2`, `@filename`
-- Invoke: `/command-name` in Claude Code chat
+- `/memo.draft-exp` - 雑なメモを実験ノートに展開
+- `/memo.retitle` - タイトル改善案を提案
+- `/memo.organize` - メモを整理・構造化
+- `/memo.summarize` - 複数メモの集約レポート生成
+- `/memo.compare-exp` - 実験比較テーブル生成
+- `/memo.refine` - 走り書きを洗練されたメモに変換
+- `/memo.voice-to-memo` - 音声文字起こしを構造化メモに再構成
 
-**GitHub Copilot**:
-- Location: `.github/prompts/*.prompt.md`
-- Variables: `${selection}`, `${file}`, `${input:varname}`
-- Invoke: `/command-name` in Copilot Chat (VSCode)
+### 詳細ドキュメント
 
-Both systems support the same base Markdown content, allowing you to maintain compatible prompts across both AI assistants.
+各コマンドの詳しい使い方、機能、出力例については **[AI_COMMANDS.md](AI_COMMANDS.md)** を参照してください。
 
-### Available AI Commands
+### プロンプトのカスタマイズ
 
-All commands are available in Japanese and include detailed instructions:
+プロンプトテンプレートは簡単にカスタマイズできます：
+- Claude Code: `.claude/commands/memo.*.md`
+- GitHub Copilot: `.github/prompts/memo.*.prompt.md`
 
-#### 1. draft-exp
-雑なメモや簡単なコメントを、構造化された実験ノートに展開します。
-
-**使い方 (Claude Code)**:
-1. 雑なメモを書く（例: "ResNet50でImageNet。lr=0.001で試す"）
-2. その部分を選択（Visual mode）
-3. `/memo.draft-exp` を実行
-
-**使い方 (GitHub Copilot / VSCode)**:
-1. 雑なメモを書く
-2. テキストを選択
-3. Copilot Chat で `/memo.draft-exp` を実行（選択テキストは自動で `${selection}` として渡される）
-
-#### 2. retitle
-メモのタイトルを分析し、検索しやすく意味のある改善案を3つ提案します。
-
-**使い方**:
-- メモ全体を選択して `/memo.retitle` を実行
-- または現在のファイルを開いた状態で実行
-
-#### 3. organize
-散らかったメモを整理し、構造化された読みやすい形式に変換します。
-
-**機能**:
-- 重複情報の統合
-- 論理的な並び替え
-- 階層構造の追加
-- TODO項目の抽出
-
-#### 4. summarize
-複数のメモファイルを分析し、まとまったレビューレポートを自動生成します。
-
-**使い方**:
-```
-# Claude Code
-/memo.summarize @general/daily/2025/01/*.md
-
-# GitHub Copilot
-/memo.summarize
-「1月の全メモを集約してください」
-```
-
-**含まれる内容**:
-- 主な成果・アクティビティ
-- プロジェクト別の活動
-- 実験まとめテーブル
-- 重要なトピック・学び
-- 課題と次のアクション
-
-#### 5. compare-exp
-複数の実験ノートを比較し、パラメータと結果の比較テーブルを生成します。
-
-**使い方**:
-```
-/memo.compare-exp
-実験ID: exp001, exp003, exp005の結果を比較してください
-```
-
-**出力**:
-- パラメータ比較テーブル
-- 結果（メトリクス）比較テーブル
-- 分析サマリー
-- 次の実験提案
-
-### Workflow Examples
-
-#### Example 1: Quick Experiment Note
-```vim
-" 1. 雑なメモを書く
-実験メモ: resnet学習率変えてみる。0.001と0.0001
-
-" 2. 選択して展開
-[Visual mode で選択] → /memo.draft-exp
-
-" 3. 構造化された実験ノートが生成される
-```
-
-#### Example 2: Compare Multiple Experiments
-```vim
-" 実験結果を比較したい場合
-/memo.compare-exp
-exp001からexp005までの実験結果を比較し、
-最も効果的だったパラメータ設定を分析してください
-```
-
-### Customizing Prompts
-
-All prompt templates are Markdown files and can be easily customized:
-
-**Claude Code**: `.claude/commands/memo.*.md`
-**GitHub Copilot**: `.github/prompts/memo.*.prompt.md`
-**General Instructions**: `.github/copilot-instructions.md`
-
-Edit these files to adjust the prompts to your specific needs, domain terminology, or workflow preferences.
-
-Note: The base Markdown content in `templates/prompts/` is compatible with both systems. When you run `:MemoSetupAI`, it copies these templates to the appropriate locations with the `memo.` prefix for each AI assistant.
-
-### Tips for Effective AI Usage
-
-1. **Be Specific**: The more context you provide, the better the AI output
-2. **Iterate**: Start with rough notes, then use AI to expand and refine
-3. **Review**: Always review and edit AI-generated content
-4. **Combine**: Use multiple commands in sequence (draft-exp → organize → retitle)
-5. **Customize**: Modify the prompt templates to match your research domain
+詳細は [AI_COMMANDS.md](AI_COMMANDS.md) を参照してください。
