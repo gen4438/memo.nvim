@@ -81,6 +81,56 @@ function M.interactive_work_memo()
   end)
 end
 
+function M.interactive_experiment_memo()
+  local memo = require('memo.memo')
+  local utils = require('memo.utils')
+
+  -- Get list of available projects
+  local projects = utils.complete_project_names("", "", 0)
+
+  -- Add option for creating a new project
+  table.insert(projects, 1, "+ Create new project")
+
+  -- Show project selection
+  vim.ui.select(projects, {
+    prompt = "Select project for experiment: ",
+  }, function(selected)
+    if not selected then
+      return
+    end
+
+    if selected == "+ Create new project" then
+      -- Prompt for new project name
+      vim.ui.input({
+        prompt = "Enter new project name: ",
+      }, function(new_project)
+        if new_project and new_project ~= "" then
+          new_project = vim.trim(new_project)
+          -- Now ask for a title
+          vim.ui.input({
+            prompt = "Enter experiment title: ",
+          }, function(title)
+            if title and title ~= "" then
+              title = vim.trim(title)
+              memo.create_experiment_memo(new_project, title)
+            end
+          end)
+        end
+      end)
+    else
+      -- Selected an existing project
+      vim.ui.input({
+        prompt = "Enter experiment title: ",
+      }, function(title)
+        if title and title ~= "" then
+          title = vim.trim(title)
+          memo.create_experiment_memo(selected, title)
+        end
+      end)
+    end
+  end)
+end
+
 
 -- Setup commands and keymaps
 function M.setup()
@@ -120,6 +170,34 @@ function M.setup()
   end, {
     nargs = "?",
     desc = "Create a new work memo",
+    complete = function(arg_lead, cmd_line, cursor_pos)
+      local cmd_parts = vim.split(cmd_line, " ", { plain = true })
+      if #cmd_parts == 2 then
+        return require('memo.utils').complete_project_names(arg_lead, cmd_line, cursor_pos)
+      end
+      return {}
+    end,
+  })
+
+  api.nvim_create_user_command("MemoNewExperiment", function(args)
+    if args.args == "" then
+      -- Interactive mode
+      M.interactive_experiment_memo()
+    else
+      -- Traditional mode with arguments
+      local trimmed_args = vim.trim(args.args)
+      local parts = vim.split(trimmed_args, " ", { plain = true })
+      if #parts < 2 then
+        vim.notify("Usage: MemoNewExperiment project_name title", vim.log.levels.ERROR)
+        return
+      end
+      local project_name = parts[1]
+      local title = vim.trim(table.concat({ unpack(parts, 2) }, " "))
+      require('memo.memo').create_experiment_memo(project_name, title)
+    end
+  end, {
+    nargs = "?",
+    desc = "Create a new experiment notebook",
     complete = function(arg_lead, cmd_line, cursor_pos)
       local cmd_parts = vim.split(cmd_line, " ", { plain = true })
       if #cmd_parts == 2 then
@@ -253,6 +331,7 @@ function M.setup()
     { "n", "<leader>mnn",  ":MemoNew ",                  { desc = "Create new general memo", noremap = true } },
     { "n", "<leader>mt",   "<cmd>MemoOpenTodo<CR>",      { desc = "Open todo list", noremap = true } },
     { "n", "<leader>mnw",  ":MemoNewWork<CR>",           { desc = "Create new work memo (interactive)", noremap = true } },
+    { "n", "<leader>mne",  ":MemoNewExperiment<CR>",     { desc = "Create new experiment notebook (interactive)", noremap = true } },
 
     -- Periodic memos
     { "n", "<leader>md",   "<cmd>MemoOpenDaily<CR>",     { desc = "Open daily memo", noremap = true } },

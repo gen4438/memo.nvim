@@ -4,8 +4,9 @@ Neovim plugin for efficient memo management with fzf-lua integration and Git syn
 
 ## Features
 
-- Create different types of memos (general, work)
+- Create different types of memos (general, work, experiment)
 - Generate periodic memos (daily, weekly, monthly, yearly)
+- Experiment notebook with auto-numbered IDs and structured templates
 - Easy todo list management
 - Search memos using fzf-lua
 - Git integration for version control
@@ -64,6 +65,7 @@ my-notes/
 ├── templates/               # Template directory
 │   ├── general.md           # Template for general memos
 │   ├── work.md              # Template for work memos
+│   ├── experiment.md        # Template for experiment notebooks
 │   ├── daily.md             # Template for daily memos
 │   ├── weekly.md            # Template for weekly memos
 │   ├── monthly.md           # Template for monthly memos
@@ -83,6 +85,8 @@ my-notes/
 │       └── YYYY/MM/YYYY-MM-DD_title.md
 └── work/                    # Work memos
     └── project1/
+        ├── experiments/     # Experiment notebooks
+        │   └── YYYY/MM/YYYY-MM-DD_expXXX_title.md
         └── YYYY/MM/YYYY-MM-DD_title.md
 ```
 
@@ -92,6 +96,7 @@ my-notes/
 
 - `:MemoNew <title>` - Create a new general memo
 - `:MemoNewWork [project_name] [title]` - Create a work memo (interactive if no args)
+- `:MemoNewExperiment [project_name] [title]` - Create an experiment notebook with auto-numbered ID (interactive if no args)
 
 ### Todo and Periodic Memos
 
@@ -129,6 +134,7 @@ Note: Periodic memos are created as buffers only and are saved to disk only when
 
 - `<leader>mnn` - Create new general memo
 - `<leader>mnw` - Create new work memo (interactive)
+- `<leader>mne` - Create new experiment notebook (interactive)
 
 ### Todo and Periodic Memos
 
@@ -187,15 +193,56 @@ The plugin includes a template system for customizing all memo types. Templates 
 - `{{month}}` - Current month (based on `month_format`)
 - `{{year}}` - Current year
 - `{{project}}` - Project name (for work memos)
+- `{{exp_id}}` - Experiment ID (for experiment notebooks, e.g., exp001)
 
 Default templates are provided for all memo types. You can edit them using the `:MemoTemplateEdit` command.
 
+## Experiment Notebooks
+
+The plugin includes a specialized experiment notebook feature designed for data science, machine learning, and research workflows.
+
+### Features
+
+- **Auto-numbered IDs**: Experiment IDs are automatically assigned (exp001, exp002, ...) per project
+- **Structured Template**: Comprehensive template covering all aspects of experiments:
+  - Objective & Hypothesis
+  - Environment & System Information
+  - Input Data & Preprocessing
+  - Method & Configuration (with YAML/JSON parameter blocks)
+  - Execution Commands
+  - Results (quantitative metrics, visualizations, outputs)
+  - Analysis & Discussion
+  - Conclusions & Next Steps
+  - References & Related Work
+- **Separate Directory**: Experiments are stored in `work/project/experiments/` to keep them organized separately from regular memos
+- **Reproducibility**: Template includes fields for tracking Git commits, working directories, commands, and configuration files
+
+### Usage
+
+```vim
+" Interactive mode (recommended)
+:MemoNewExperiment
+" or
+<leader>mne
+
+" Direct mode
+:MemoNewExperiment my-project "hyperparameter tuning test"
+```
+
+The experiment notebook template is specifically designed for information systems and data analysis workflows, including sections for:
+- Dataset information and preprocessing
+- Model architecture and hyperparameters
+- Performance metrics tables
+- Error analysis
+- Baseline comparisons
+
 ## Interactive Selection
 
-When creating work memos without arguments, you can select existing projects or create new ones:
+When creating work memos or experiment notebooks without arguments, you can select existing projects or create new ones:
 
 - Work memos: Choose from existing projects or select "+ Create new project"
+- Experiment notebooks: Choose from existing projects or select "+ Create new project"
 
 ## Completion
 
-- Work memo project names are auto-completed based on existing directories
+- Work memo and experiment notebook project names are auto-completed based on existing directories

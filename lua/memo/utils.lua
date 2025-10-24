@@ -80,4 +80,35 @@ function M.complete_project_names(arg_lead, cmd_line, cursor_pos)
   return projects
 end
 
+-- Get next experiment ID for a project
+function M.get_next_experiment_id(project_name)
+  local config = require('memo.config').get()
+  local exp_dir = vim.fn.expand(config.memo_dir .. "/work/" .. project_name .. "/experiments")
+
+  if vim.fn.isdirectory(exp_dir) == 0 then
+    return "exp001"
+  end
+
+  -- Find all experiment files recursively
+  local max_id = 0
+  local handle = io.popen("find " .. vim.fn.shellescape(exp_dir) .. " -type f -name '*_exp[0-9][0-9][0-9]_*.md' 2>/dev/null")
+
+  if handle then
+    for line in handle:lines() do
+      -- Extract experiment ID from filename (format: YYYY-MM-DD_expXXX_title.md)
+      local exp_id = line:match("_exp(%d%d%d)_")
+      if exp_id then
+        local id_num = tonumber(exp_id)
+        if id_num and id_num > max_id then
+          max_id = id_num
+        end
+      end
+    end
+    handle:close()
+  end
+
+  -- Return next ID with zero padding
+  return string.format("exp%03d", max_id + 1)
+end
+
 return M
