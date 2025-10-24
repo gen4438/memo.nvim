@@ -55,11 +55,13 @@ function M.interactive_work_memo()
         prompt = "Enter new project name: ",
       }, function(new_project)
         if new_project and new_project ~= "" then
+          new_project = vim.trim(new_project)
           -- Now ask for a title
           vim.ui.input({
             prompt = "Enter memo title: ",
           }, function(title)
             if title and title ~= "" then
+              title = vim.trim(title)
               memo.create_work_memo(new_project, title)
             end
           end)
@@ -71,6 +73,7 @@ function M.interactive_work_memo()
         prompt = "Enter memo title: ",
       }, function(title)
         if title and title ~= "" then
+          title = vim.trim(title)
           memo.create_work_memo(selected, title)
         end
       end)
@@ -102,11 +105,13 @@ function M.interactive_code_memo()
         prompt = "Enter new language name: ",
       }, function(new_lang)
         if new_lang and new_lang ~= "" then
+          new_lang = vim.trim(new_lang)
           -- Now ask for a title
           vim.ui.input({
             prompt = "Enter memo title: ",
           }, function(title)
             if title and title ~= "" then
+              title = vim.trim(title)
               memo.create_code_memo(new_lang, title)
             end
           end)
@@ -118,6 +123,7 @@ function M.interactive_code_memo()
         prompt = "Enter memo title: ",
       }, function(title)
         if title and title ~= "" then
+          title = vim.trim(title)
           memo.create_code_memo(selected, title)
         end
       end)
@@ -131,7 +137,8 @@ function M.setup()
 
   -- Create commands for memo creation
   api.nvim_create_user_command("MemoNew", function(args)
-    require('memo.memo').create_general_memo(args.args)
+    local title = vim.trim(args.args)
+    require('memo.memo').create_general_memo(title)
   end, {
     nargs = 1,
     desc = "Create a new general memo",
@@ -149,13 +156,14 @@ function M.setup()
       M.interactive_work_memo()
     else
       -- Traditional mode with arguments
-      local parts = vim.split(args.args, " ", { plain = true })
+      local trimmed_args = vim.trim(args.args)
+      local parts = vim.split(trimmed_args, " ", { plain = true })
       if #parts < 2 then
         vim.notify("Usage: MemoNewWork project_name title", vim.log.levels.ERROR)
         return
       end
       local project_name = parts[1]
-      local title = table.concat({ unpack(parts, 2) }, " ")
+      local title = vim.trim(table.concat({ unpack(parts, 2) }, " "))
       require('memo.memo').create_work_memo(project_name, title)
     end
   end, {
@@ -171,7 +179,8 @@ function M.setup()
   })
 
   api.nvim_create_user_command("MemoNewPrompt", function(args)
-    require('memo.memo').create_prompt_memo(args.args)
+    local title = vim.trim(args.args)
+    require('memo.memo').create_prompt_memo(title)
   end, {
     nargs = 1,
     desc = "Create a new prompt memo",
@@ -183,13 +192,14 @@ function M.setup()
       M.interactive_code_memo()
     else
       -- Traditional mode with arguments
-      local parts = vim.split(args.args, " ", { plain = true })
+      local trimmed_args = vim.trim(args.args)
+      local parts = vim.split(trimmed_args, " ", { plain = true })
       if #parts < 2 then
         vim.notify("Usage: MemoNewCode language title", vim.log.levels.ERROR)
         return
       end
       local lang = parts[1]
-      local title = table.concat({ unpack(parts, 2) }, " ")
+      local title = vim.trim(table.concat({ unpack(parts, 2) }, " "))
       require('memo.memo').create_code_memo(lang, title)
     end
   end, {
