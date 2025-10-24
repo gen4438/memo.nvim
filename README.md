@@ -276,27 +276,27 @@ Both systems support the same base Markdown content, allowing you to maintain co
 
 All commands are available in Japanese and include detailed instructions:
 
-#### 1. expand-experiment
+#### 1. draft-exp
 雑なメモや簡単なコメントを、構造化された実験ノートに展開します。
 
 **使い方 (Claude Code)**:
 1. 雑なメモを書く（例: "ResNet50でImageNet。lr=0.001で試す"）
 2. その部分を選択（Visual mode）
-3. `/memo.expand-experiment` を実行
+3. `/memo.draft-exp` を実行
 
 **使い方 (GitHub Copilot / VSCode)**:
 1. 雑なメモを書く
 2. テキストを選択
-3. Copilot Chat で `/memo.expand-experiment` を実行（選択テキストは自動で `${selection}` として渡される）
+3. Copilot Chat で `/memo.draft-exp` を実行（選択テキストは自動で `${selection}` として渡される）
 
-#### 2. improve-title
+#### 2. retitle
 メモのタイトルを分析し、検索しやすく意味のある改善案を3つ提案します。
 
 **使い方**:
-- メモ全体を選択して `/memo.improve-title` を実行
+- メモ全体を選択して `/memo.retitle` を実行
 - または現在のファイルを開いた状態で実行
 
-#### 3. organize-memo
+#### 3. organize
 散らかったメモを整理し、構造化された読みやすい形式に変換します。
 
 **機能**:
@@ -305,22 +305,32 @@ All commands are available in Japanese and include detailed instructions:
 - 階層構造の追加
 - TODO項目の抽出
 
-#### 4. summarize-weekly
-今週作成したメモを分析し、週次レビューレポートを自動生成します。
+#### 4. summarize
+複数のメモファイルを分析し、まとまったレビューレポートを自動生成します。
+
+**使い方**:
+```
+# Claude Code
+/memo.summarize @general/daily/2025/01/*.md
+
+# GitHub Copilot
+/memo.summarize
+「1月の全メモを集約してください」
+```
 
 **含まれる内容**:
-- 主な成果
-- プロジェクト別の進捗
+- 主な成果・アクティビティ
+- プロジェクト別の活動
 - 実験まとめテーブル
-- 学んだこと・気づき
-- 来週のアクションアイテム
+- 重要なトピック・学び
+- 課題と次のアクション
 
-#### 5. compare-experiments
+#### 5. compare-exp
 複数の実験ノートを比較し、パラメータと結果の比較テーブルを生成します。
 
 **使い方**:
 ```
-/memo.compare-experiments
+/memo.compare-exp
 実験ID: exp001, exp003, exp005の結果を比較してください
 ```
 
@@ -338,7 +348,7 @@ All commands are available in Japanese and include detailed instructions:
 実験メモ: resnet学習率変えてみる。0.001と0.0001
 
 " 2. 選択して展開
-[Visual mode で選択] → /memo.expand-experiment
+[Visual mode で選択] → /memo.draft-exp
 
 " 3. 構造化された実験ノートが生成される
 ```
@@ -346,7 +356,7 @@ All commands are available in Japanese and include detailed instructions:
 #### Example 2: Compare Multiple Experiments
 ```vim
 " 実験結果を比較したい場合
-/memo.compare-experiments
+/memo.compare-exp
 exp001からexp005までの実験結果を比較し、
 最も効果的だったパラメータ設定を分析してください
 ```
@@ -355,18 +365,18 @@ exp001からexp005までの実験結果を比較し、
 
 All prompt templates are Markdown files and can be easily customized:
 
-**Claude Code**: `.claude/commands/*.md`
-**GitHub Copilot**: `.github/prompts/*.prompt.md`
+**Claude Code**: `.claude/commands/memo.*.md`
+**GitHub Copilot**: `.github/prompts/memo.*.prompt.md`
 **General Instructions**: `.github/copilot-instructions.md`
 
 Edit these files to adjust the prompts to your specific needs, domain terminology, or workflow preferences.
 
-Note: The base Markdown content in `templates/prompts/` is compatible with both systems. When you run `:MemoSetupAI`, it copies these templates to the appropriate locations for each AI assistant.
+Note: The base Markdown content in `templates/prompts/` is compatible with both systems. When you run `:MemoSetupAI`, it copies these templates to the appropriate locations with the `memo.` prefix for each AI assistant.
 
 ### Tips for Effective AI Usage
 
 1. **Be Specific**: The more context you provide, the better the AI output
 2. **Iterate**: Start with rough notes, then use AI to expand and refine
 3. **Review**: Always review and edit AI-generated content
-4. **Combine**: Use multiple commands in sequence (expand → organize → improve-title)
+4. **Combine**: Use multiple commands in sequence (draft-exp → organize → retitle)
 5. **Customize**: Modify the prompt templates to match your research domain

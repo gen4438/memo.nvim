@@ -38,11 +38,11 @@ end
 
 -- List of prompt template files to copy
 local prompt_templates = {
-  "expand-experiment.md",
-  "improve-title.md",
-  "organize-memo.md",
-  "summarize-weekly.md",
-  "compare-experiments.md",
+  "draft-exp.md",
+  "retitle.md",
+  "organize.md",
+  "summarize.md",
+  "compare-exp.md",
 }
 
 -- AGENTS.md file (unified AI instructions format)
@@ -58,9 +58,9 @@ function M.setup_ai_templates()
   local claude_dir = memo_dir .. "/.claude/commands"
   utils.ensure_dir_exists(claude_dir)
 
-  -- Create .vscode/prompts directory
-  local vscode_dir = memo_dir .. "/.vscode/prompts"
-  utils.ensure_dir_exists(vscode_dir)
+  -- Create .github/prompts directory for GitHub Copilot
+  local github_prompts_dir = memo_dir .. "/.github/prompts"
+  utils.ensure_dir_exists(github_prompts_dir)
 
   -- Create .github directory
   local github_dir = memo_dir .. "/.github"
@@ -70,10 +70,11 @@ function M.setup_ai_templates()
   local files_skipped = 0
   local errors = {}
 
-  -- Copy prompt templates for Claude Code
+  -- Copy prompt templates for Claude Code (with memo. prefix)
   for _, filename in ipairs(prompt_templates) do
     local src = template_src_dir .. filename
-    local dest = claude_dir .. "/" .. filename
+    -- Add memo. prefix to the command name
+    local dest = claude_dir .. "/memo." .. filename
 
     if vim.fn.filereadable(dest) == 0 then
       local success, err = copy_file(src, dest)
@@ -87,10 +88,12 @@ function M.setup_ai_templates()
     end
   end
 
-  -- Copy prompt templates for VSCode Copilot (same files)
+  -- Copy prompt templates for GitHub Copilot (with memo. prefix and .prompt.md extension)
   for _, filename in ipairs(prompt_templates) do
     local src = template_src_dir .. filename
-    local dest = vscode_dir .. "/" .. filename
+    -- Change extension from .md to .prompt.md and add memo. prefix for GitHub Copilot
+    local base_name = filename:gsub("%.md$", "")
+    local dest = github_prompts_dir .. "/memo." .. base_name .. ".prompt.md"
 
     if vim.fn.filereadable(dest) == 0 then
       local success, err = copy_file(src, dest)
@@ -135,13 +138,13 @@ function M.setup_ai_templates()
 
   -- Show result message
   local message = string.format(
-    "AI templates setup completed!\nCreated: %d files\nSkipped (already exists): %d files\n\nAGENTS.md copied to:\n- GitHub Copilot: %s\n- Claude Code: %s\n\nPrompt templates copied to:\n- Claude Code commands: %s\n- VSCode prompts: %s",
+    "AI templates setup completed!\nCreated: %d files\nSkipped (already exists): %d files\n\nAGENTS.md copied to:\n- GitHub Copilot: %s\n- Claude Code: %s\n\nPrompt templates copied to:\n- Claude Code commands: %s\n- GitHub Copilot prompts: %s",
     files_created,
     files_skipped,
     copilot_dest,
     claude_dest,
     claude_dir,
-    vscode_dir
+    github_prompts_dir
   )
 
   if #errors > 0 then

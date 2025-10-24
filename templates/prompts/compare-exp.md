@@ -1,5 +1,15 @@
 指定された複数の実験ノートを分析し、パラメータと結果を比較するテーブルを生成してください。
 
+## 使用方法
+
+### Claude Code
+- チャットで実験IDを指定: `/memo.compare-exp` → 「exp001, exp003, exp005を比較」
+- または複数ファイルを参照: `/memo.compare-exp @experiments/exp001*.md @experiments/exp003*.md`
+
+### GitHub Copilot (VS Code)
+- チャットで実験IDを指定: `/memo.compare-exp` → 「exp001からexp005までを比較」
+- または `#file` で複数ファイルを参照
+
 ## タスク
 複数の実験ノートファイルを読み込み、以下の比較分析を実施してください：
 

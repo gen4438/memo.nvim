@@ -1,5 +1,15 @@
 散らかったメモの内容を整理し、構造化された読みやすい形式に変換してください。
 
+## 使用方法
+
+### Claude Code
+- エディタでテキストを選択後: `/memo.organize`
+- ファイル全体を対象: `/memo.organize @filename`
+
+### GitHub Copilot (VS Code)
+- エディタでテキストを選択後: `/memo.organize`
+- 変数を使用: `${selection}` で選択テキスト、`${file}` でファイル全体
+
 ## タスク
 選択されたメモを以下の方針で整理してください：
 
@@ -13,6 +23,8 @@
 
 ## 入力
 整理されていないメモの内容
+- Claude Code: 選択テキストまたは `@filename` で指定されたファイル
+- GitHub Copilot: `${selection}` 変数で渡される選択テキスト
 
 ## 出力形式
 構造化されたMarkdown形式のメモ
