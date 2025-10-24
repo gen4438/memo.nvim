@@ -15,8 +15,12 @@ local M = {}
 
 -- Get path to the plugin's default templates directory
 function M.get_plugin_templates_dir()
-  -- Attempt to find the plugin's template directory
-  local plugin_path = vim.fn.fnamemodify(vim.fn.expand('<sfile>'), ':p:h:h')
+  -- Use debug.getinfo to find the actual script path
+  local source = debug.getinfo(1, "S").source
+  if source:sub(1, 1) == "@" then
+    source = source:sub(2)
+  end
+  local plugin_path = vim.fn.fnamemodify(source, ':p:h:h')
   return plugin_path .. "/templates"
 end
 
@@ -206,8 +210,13 @@ end
 -- Get processed template content for a given memo type and info
 function M.get_processed_template(template_name, memo_info)
   local template_content = M.get_template(template_name)
-  local variables = M.generate_variables(memo_info)
 
+  -- Return nil if template not found
+  if not template_content then
+    return nil
+  end
+
+  local variables = M.generate_variables(memo_info)
   return M.process_template(template_content, variables)
 end
 

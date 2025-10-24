@@ -26,8 +26,10 @@ function M.open_daily_memo()
   -- If the file doesn't exist yet, set up template in the buffer only
   if vim.fn.filereadable(filepath) == 0 then
     local content = template.get_processed_template("daily", {})
-    local lines = vim.split(content, "\n")
-    vim.api.nvim_buf_set_lines(0, 0, -1, false, lines)
+    if content then
+      local lines = vim.split(content, "\n")
+      vim.api.nvim_buf_set_lines(0, 0, -1, false, lines)
+    end
     -- File will only be created when the user explicitly saves
   end
 end
@@ -51,8 +53,10 @@ function M.open_monthly_memo()
   -- If the file doesn't exist yet, set up template in the buffer only
   if vim.fn.filereadable(filepath) == 0 then
     local content = template.get_processed_template("monthly", {})
-    local lines = vim.split(content, "\n")
-    vim.api.nvim_buf_set_lines(0, 0, -1, false, lines)
+    if content then
+      local lines = vim.split(content, "\n")
+      vim.api.nvim_buf_set_lines(0, 0, -1, false, lines)
+    end
     -- File will only be created when the user explicitly saves
   end
 end
