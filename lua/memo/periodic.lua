@@ -29,6 +29,11 @@ function M.open_daily_memo()
     if content then
       local lines = vim.split(content, "\n")
       vim.api.nvim_buf_set_lines(0, 0, -1, false, lines)
+    else
+      vim.notify(
+        "Daily template not found. Run :MemoInstallTemplates to install default templates.",
+        vim.log.levels.WARN
+      )
     end
     -- File will only be created when the user explicitly saves
   end
@@ -56,6 +61,11 @@ function M.open_monthly_memo()
     if content then
       local lines = vim.split(content, "\n")
       vim.api.nvim_buf_set_lines(0, 0, -1, false, lines)
+    else
+      vim.notify(
+        "Monthly template not found. Run :MemoInstallTemplates to install default templates.",
+        vim.log.levels.WARN
+      )
     end
     -- File will only be created when the user explicitly saves
   end

@@ -165,7 +165,11 @@ function M.get_template(template_name)
   end
 
   -- Template not found
-  vim.notify("Template not found: " .. template_name, vim.log.levels.ERROR)
+  vim.notify(
+    "Template not found: " .. template_name .. "\n" ..
+    "Please run :MemoInstallTemplates to install default templates.",
+    vim.log.levels.ERROR
+  )
   return nil
 end
 
