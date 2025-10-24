@@ -11,11 +11,8 @@ function M.open_todo()
   local cfg = require('memo.config').get()
   local template = require('memo.template')
 
-  -- Create todo directory
-  local todo_dir = vim.fn.expand(cfg.memo_dir .. "/todo")
-  utils.ensure_dir_exists(todo_dir)
-
   -- Set the filepath
+  local todo_dir = vim.fn.expand(cfg.memo_dir .. "/todo")
   local filepath = todo_dir .. "/todo.md"
 
   -- Open the file in a new buffer
