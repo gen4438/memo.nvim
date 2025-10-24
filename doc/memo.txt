@@ -20,7 +20,7 @@ memo.nvim is a Neovim plugin for efficiently managing memos.
 It provides the following features:
 
 - Create different types of memos (general, work, prompt, code)
-- Generate periodic memos (daily, weekly, monthly, yearly)
+- Generate periodic memos (daily, monthly)
 - Todo list management
 - fzf-lua integration for searching and grepping memos
 - Git integration (commit, push, pull)
@@ -110,9 +110,7 @@ Memo Creation Commands:
 Todo and Periodic Memo Commands:
   `:MemoOpenTodo`                     Open todo list
   `:MemoOpenDaily`                    Open daily memo
-  `:MemoOpenWeekly`                   Open weekly memo
   `:MemoOpenMonthly`                  Open monthly memo
-  `:MemoOpenYearly`                   Open yearly memo
 
 Note: Periodic memos are created as buffers only and are saved to disk only 
 when you explicitly save them. Canceling the buffer with `:q` will discard 
@@ -147,9 +145,7 @@ Memo Creation:
 Todo and Periodic Memos:
   `<leader>mt`                       Open todo list
   `<leader>md`                       Open daily memo
-  `<leader>mw`                       Open weekly memo
   `<leader>mm`                       Open monthly memo
-  `<leader>my`                       Open yearly memo
 
 Search:
   `<leader>ml`                       List memos with fzf
@@ -187,9 +183,7 @@ Available Template Types:
   `prompt`           - Prompt memos
   `code`             - Code memos
   `daily`            - Daily memos
-  `weekly`           - Weekly memos
   `monthly`          - Monthly memos
-  `yearly`           - Yearly memos
   `todo`             - Todo list
 
 To create or edit a template, use:

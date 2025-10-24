@@ -1,5 +1,10 @@
 # {{title}}
 
-Date: {{date}}
-Project: {{project}}
+**Project**: {{project}}
+
+## Tasks
+
+- [ ]
+
+## Notes
 

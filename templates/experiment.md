@@ -1,39 +1,39 @@
 # {{title}}
 
-**Experiment ID**: {{exp_id}}
-**Date**: {{date}}
-**Project**: {{project}}
-**Status**: 🔬 Running
+**実験ID**: {{exp_id}}
+**日付**: {{date}}
+**プロジェクト**: {{project}}
+**ステータス**: 🔬 実行中
 
 ---
 
-## 1. Objective & Hypothesis
+## 1. 目的と仮説
 
-### Objective
+### 目的
 <!-- この実験の目的を明確に記述 -->
 
-### Hypothesis
+### 仮説
 <!-- 検証したい仮説 -->
 
 ---
 
-## 2. Environment
+## 2. 実験環境
 
-### System Information
+### システム情報
 - **Working Directory**:
 - **Git Branch/Commit**:
 - **Python/R Version**:
 - **Key Libraries**:
 
-### Hardware
+### ハードウェア
 - **CPU/GPU**:
 - **Memory**:
 
 ---
 
-## 3. Input Data
+## 3. 入力データ
 
-### Dataset Information
+### データセット情報
 | Item | Value |
 |------|-------|
 | Dataset Name | |
@@ -42,26 +42,26 @@
 | Path | |
 | Format | |
 
-### Data Preprocessing
+### データ前処理
 ```python
 # 前処理のコード・説明
 
 ```
 
-### Data Characteristics
+### データ特性
 - **Features**:
 - **Target**:
 - **Train/Val/Test Split**:
 
 ---
 
-## 4. Method & Configuration
+## 4. 手法と設定
 
-### Algorithm/Model
+### アルゴリズム/モデル
 - **Type**:
 - **Architecture**:
 
-### Parameters & Settings
+### パラメータと設定
 
 ```yaml
 # パラメータ設定をYAML/JSON形式で記述
@@ -82,33 +82,33 @@ preprocessing:
 random_seed:
 ```
 
-### Configuration Files
+### 設定ファイル
 - **Config Path**:
 - **Other Settings**:
 
 ---
 
-## 5. Execution
+## 5. 実行
 
-### Command
+### コマンド
 ```bash
 # 実行したコマンド
 
 
 ```
 
-### Runtime Information
+### 実行時情報
 - **Start Time**:
 - **End Time**:
 - **Duration**:
 
 ---
 
-## 6. Results
+## 6. 結果
 
-### Quantitative Results
+### 定量的結果
 
-#### Performance Metrics
+#### パフォーマンス指標
 | Metric | Train | Validation | Test |
 |--------|-------|------------|------|
 | Accuracy | | | |
@@ -118,83 +118,83 @@ random_seed:
 | Loss | | | |
 | AUC | | | |
 
-#### Additional Metrics
+#### 追加指標
 <!-- その他の評価指標 -->
 
-### Qualitative Results
+### 定性的結果
 
-#### Visualizations
+#### 可視化
 <!-- グラフ、プロット、画像の説明 -->
 -
 
-#### Output Files
+#### 出力ファイル
 - **Model Weights**:
 - **Predictions**:
 - **Logs**:
 - **Plots**:
 
-### Observations
+### 観察事項
 <!-- 実行中・結果について観察したこと -->
 
 ---
 
-## 7. Analysis & Discussion
+## 7. 分析と考察
 
-### Key Findings
+### 主要な発見
 <!-- 主要な発見 -->
 
-### Comparison with Baseline/Previous Experiments
+### ベースライン/過去の実験との比較
 <!-- ベースラインや過去の実験との比較 -->
 
-### Error Analysis
+### エラー分析
 <!-- エラー分析、失敗ケースの検討 -->
 
-### Unexpected Results
+### 予想外の結果
 <!-- 予想外の結果とその考察 -->
 
 ---
 
-## 8. Conclusions
+## 8. 結論
 
-### Summary
+### まとめ
 <!-- 実験のまとめ -->
 
-### Hypothesis Validation
+### 仮説の検証
 <!-- 仮説は検証されたか -->
 
-### Limitations
+### 制約事項
 <!-- この実験の制約・限界 -->
 
 ---
 
-## 9. Next Steps
+## 9. 次のステップ
 
-### Action Items
+### アクションアイテム
 - [ ]
 - [ ]
 - [ ]
 
-### Future Experiments
+### 今後の実験
 <!-- 次に試すべき実験のアイデア -->
 
 ---
 
-## 10. References & Related Work
+## 10. 参考文献と関連研究
 
-### Papers
+### 論文
 -
 
-### Related Experiments
+### 関連実験
 <!-- 関連する実験ノートへのリンク -->
 -
 
-### External Resources
+### 外部リソース
 <!-- 参考にしたドキュメント、ブログ記事など -->
 -
 
 ---
 
-## Notes & Comments
+## メモとコメント
 <!-- その他のメモ、気づいたことなど -->
 
 

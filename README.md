@@ -5,7 +5,7 @@ Neovim plugin for efficient memo management with fzf-lua integration and Git syn
 ## Features
 
 - Create different types of memos (general, work, experiment)
-- Generate periodic memos (daily, weekly, monthly, yearly)
+- Generate periodic memos (daily, monthly)
 - Experiment notebook with auto-numbered IDs and structured templates
 - Easy todo list management
 - Search memos using fzf-lua
@@ -67,20 +67,14 @@ my-notes/
 │   ├── work.md              # Template for work memos
 │   ├── experiment.md        # Template for experiment notebooks
 │   ├── daily.md             # Template for daily memos
-│   ├── weekly.md            # Template for weekly memos
-│   ├── monthly.md           # Template for monthly memos
-│   └── yearly.md            # Template for yearly memos
+│   └── monthly.md           # Template for monthly memos
 ├── todo/
 │   └── todo.md              # Todo list
 ├── general/                 # General memos
 │   ├── daily/               # Daily memos
 │   │   └── YYYY/MM/YYYY-MM-DD_daily.md
-│   ├── weekly/              # Weekly memos
-│   │   └── YYYY/YYYY-wXX_weekly.md
 │   ├── monthly/             # Monthly memos
 │   │   └── YYYY/YYYY-MM_monthly.md
-│   ├── yearly/              # Yearly memos
-│   │   └── YYYY_yearly.md
 │   └── notes/               # General notes
 │       └── YYYY/MM/YYYY-MM-DD_title.md
 └── work/                    # Work memos
@@ -102,9 +96,7 @@ my-notes/
 
 - `:MemoOpenTodo` - Open/create the todo list
 - `:MemoOpenDaily` - Open/create the daily memo
-- `:MemoOpenWeekly` - Open/create the weekly memo
 - `:MemoOpenMonthly` - Open/create the monthly memo
-- `:MemoOpenYearly` - Open/create the yearly memo
 
 Note: Periodic memos are created as buffers only and are saved to disk only when you explicitly save them.
 
@@ -144,9 +136,7 @@ Note: Periodic memos are created as buffers only and are saved to disk only when
 
 - `<leader>mt` - Open todo list
 - `<leader>md` - Open daily memo
-- `<leader>mw` - Open weekly memo
 - `<leader>mm` - Open monthly memo
-- `<leader>my` - Open yearly memo
 
 ### Search with fzf-lua
 
@@ -264,9 +254,23 @@ Run the setup command once to create AI prompt templates in your memo directory:
 ```
 
 This creates:
-- `.claude/commands/` - Slash commands for Claude Code (Neovim)
-- `.vscode/prompts/` - Prompts for GitHub Copilot (VSCode)
+- `.claude/commands/` - Slash commands for Claude Code (CLI/Neovim)
+- `.github/prompts/` - Slash command prompts for GitHub Copilot (VSCode) in `.prompt.md` format
 - `.github/copilot-instructions.md` - Project-wide Copilot instructions
+
+### File Format Differences
+
+**Claude Code**:
+- Location: `.claude/commands/*.md`
+- Variables: `$ARGUMENTS`, `$1`, `$2`, `@filename`
+- Invoke: `/command-name` in Claude Code chat
+
+**GitHub Copilot**:
+- Location: `.github/prompts/*.prompt.md`
+- Variables: `${selection}`, `${file}`, `${input:varname}`
+- Invoke: `/command-name` in Copilot Chat (VSCode)
+
+Both systems support the same base Markdown content, allowing you to maintain compatible prompts across both AI assistants.
 
 ### Available AI Commands
 
@@ -275,21 +279,21 @@ All commands are available in Japanese and include detailed instructions:
 #### 1. expand-experiment
 雑なメモや簡単なコメントを、構造化された実験ノートに展開します。
 
-**使い方 (Claude Code / Neovim)**:
+**使い方 (Claude Code)**:
 1. 雑なメモを書く（例: "ResNet50でImageNet。lr=0.001で試す"）
 2. その部分を選択（Visual mode）
-3. `/expand-experiment`
+3. `/memo.expand-experiment` を実行
 
-**使い方 (VSCode + GitHub Copilot)**:
+**使い方 (GitHub Copilot / VSCode)**:
 1. 雑なメモを書く
-2. Copilot Chatを開く
-3. `@workspace /expand-experiment` を実行
+2. テキストを選択
+3. Copilot Chat で `/memo.expand-experiment` を実行（選択テキストは自動で `${selection}` として渡される）
 
 #### 2. improve-title
 メモのタイトルを分析し、検索しやすく意味のある改善案を3つ提案します。
 
 **使い方**:
-- メモ全体を選択して `/improve-title` を実行
+- メモ全体を選択して `/memo.improve-title` を実行
 - または現在のファイルを開いた状態で実行
 
 #### 3. organize-memo
@@ -316,7 +320,7 @@ All commands are available in Japanese and include detailed instructions:
 
 **使い方**:
 ```
-/compare-experiments
+/memo.compare-experiments
 実験ID: exp001, exp003, exp005の結果を比較してください
 ```
 
@@ -334,24 +338,15 @@ All commands are available in Japanese and include detailed instructions:
 実験メモ: resnet学習率変えてみる。0.001と0.0001
 
 " 2. 選択して展開
-[Visual mode で選択] → /expand-experiment
+[Visual mode で選択] → /memo.expand-experiment
 
 " 3. 構造化された実験ノートが生成される
 ```
 
-#### Example 2: Organize Weekly Notes
-```vim
-" 1. 週次メモを開く
-:MemoOpenWeekly
-
-" 2. デイリーメモを参照して /summarize-weekly を実行
-" → 自動的に週次レビューが生成される
-```
-
-#### Example 3: Compare Multiple Experiments
+#### Example 2: Compare Multiple Experiments
 ```vim
 " 実験結果を比較したい場合
-/compare-experiments
+/memo.compare-experiments
 exp001からexp005までの実験結果を比較し、
 最も効果的だったパラメータ設定を分析してください
 ```
@@ -361,10 +356,12 @@ exp001からexp005までの実験結果を比較し、
 All prompt templates are Markdown files and can be easily customized:
 
 **Claude Code**: `.claude/commands/*.md`
-**VSCode Copilot**: `.vscode/prompts/*.md`
+**GitHub Copilot**: `.github/prompts/*.prompt.md`
 **General Instructions**: `.github/copilot-instructions.md`
 
 Edit these files to adjust the prompts to your specific needs, domain terminology, or workflow preferences.
+
+Note: The base Markdown content in `templates/prompts/` is compatible with both systems. When you run `:MemoSetupAI`, it copies these templates to the appropriate locations for each AI assistant.
 
 ### Tips for Effective AI Usage
 

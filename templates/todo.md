@@ -1,14 +1,17 @@
-# Todo List
+# ToDo
 
-## Today
+## High Priority
 
-- [ ] 
+- [ ]
 
-## This Week
+## Normal
 
-- [ ] 
+- [ ]
 
-## Backlog
+## Low Priority
 
-- [ ] 
+- [ ]
 
+## Done
+
+-

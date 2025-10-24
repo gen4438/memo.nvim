@@ -243,22 +243,10 @@ function M.setup()
     desc = "Open daily memo",
   })
 
-  api.nvim_create_user_command("MemoOpenWeekly", function()
-    require('memo.periodic').open_weekly_memo()
-  end, {
-    desc = "Open weekly memo",
-  })
-
   api.nvim_create_user_command("MemoOpenMonthly", function()
     require('memo.periodic').open_monthly_memo()
   end, {
     desc = "Open monthly memo",
-  })
-
-  api.nvim_create_user_command("MemoOpenYearly", function()
-    require('memo.periodic').open_yearly_memo()
-  end, {
-    desc = "Open yearly memo",
   })
 
   -- FZF commands
@@ -342,9 +330,7 @@ function M.setup()
 
     -- Periodic memos
     { "n", "<leader>md",   "<cmd>MemoOpenDaily<CR>",     { desc = "Open daily memo", noremap = true } },
-    { "n", "<leader>mw",   "<cmd>MemoOpenWeekly<CR>",    { desc = "Open weekly memo", noremap = true } },
     { "n", "<leader>mm",   "<cmd>MemoOpenMonthly<CR>",   { desc = "Open monthly memo", noremap = true } },
-    { "n", "<leader>my",   "<cmd>MemoOpenYearly<CR>",    { desc = "Open yearly memo", noremap = true } },
 
     -- FZF integration
     { "n", "<leader>ml",   "<cmd>FzfMemoList<CR>",       { desc = "List memos with fzf", noremap = true } },
