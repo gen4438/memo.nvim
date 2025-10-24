@@ -60,7 +60,7 @@ end
 -- Complete project names from work directory
 function M.complete_project_names(arg_lead, cmd_line, cursor_pos)
   local config = require('memo.config').get()
-  local work_dir = vim.fn.expand(config.memo_dir .. "/note/work")
+  local work_dir = vim.fn.expand(config.memo_dir .. "/work")
 
   if vim.fn.isdirectory(work_dir) == 0 then
     return {}
@@ -78,29 +78,6 @@ function M.complete_project_names(arg_lead, cmd_line, cursor_pos)
   end
 
   return projects
-end
-
--- Complete language names for code memos
-function M.complete_languages(arg_lead, cmd_line, cursor_pos)
-  local config = require('memo.config').get()
-  local code_dir = vim.fn.expand(config.memo_dir .. "/code")
-
-  if vim.fn.isdirectory(code_dir) == 0 then
-    return {}
-  end
-
-  local languages = {}
-  local handle = io.popen("ls -1 " .. code_dir)
-  if handle then
-    for line in handle:lines() do
-      if vim.fn.isdirectory(code_dir .. "/" .. line) == 1 and line:find("^" .. arg_lead) then
-        table.insert(languages, line)
-      end
-    end
-    handle:close()
-  end
-
-  return languages
 end
 
 return M

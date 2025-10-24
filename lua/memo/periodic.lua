@@ -12,7 +12,7 @@ function M.open_daily_memo()
   local cfg = config.get()
 
   -- Create directory path
-  local year_dir = vim.fn.expand(cfg.memo_dir .. "/note/general/" .. year)
+  local year_dir = vim.fn.expand(cfg.memo_dir .. "/general/daily/" .. year)
   local month_dir = vim.fn.expand(year_dir .. "/" .. month)
   utils.ensure_dir_exists(month_dir)
 
@@ -38,13 +38,12 @@ function M.open_weekly_memo()
   local cfg = config.get()
 
   -- Create directory path
-  local year_dir = vim.fn.expand(cfg.memo_dir .. "/note/general/" .. year)
-  local month_dir = vim.fn.expand(year_dir .. "/" .. month)
-  utils.ensure_dir_exists(month_dir)
+  local year_dir = vim.fn.expand(cfg.memo_dir .. "/general/weekly/" .. year)
+  utils.ensure_dir_exists(year_dir)
 
   -- Create filename
   local filename = year .. "-w" .. iso_week .. "_weekly.md"
-  local filepath = month_dir .. "/" .. filename
+  local filepath = year_dir .. "/" .. filename
 
   -- Open a new buffer with the file path
   vim.cmd("edit " .. filepath)
@@ -64,13 +63,12 @@ function M.open_monthly_memo()
   local cfg = config.get()
 
   -- Create directory path
-  local year_dir = vim.fn.expand(cfg.memo_dir .. "/note/general/" .. year)
-  local month_dir = vim.fn.expand(year_dir .. "/" .. month)
-  utils.ensure_dir_exists(month_dir)
+  local year_dir = vim.fn.expand(cfg.memo_dir .. "/general/monthly/" .. year)
+  utils.ensure_dir_exists(year_dir)
 
   -- Create filename
   local filename = year .. "-" .. month .. "_monthly.md"
-  local filepath = month_dir .. "/" .. filename
+  local filepath = year_dir .. "/" .. filename
 
   -- Open a new buffer with the file path
   vim.cmd("edit " .. filepath)
@@ -90,12 +88,12 @@ function M.open_yearly_memo()
   local cfg = config.get()
 
   -- Create directory path
-  local year_dir = vim.fn.expand(cfg.memo_dir .. "/note/general/" .. year)
-  utils.ensure_dir_exists(year_dir)
+  local yearly_dir = vim.fn.expand(cfg.memo_dir .. "/general/yearly")
+  utils.ensure_dir_exists(yearly_dir)
 
   -- Create filename
   local filename = year .. "_yearly.md"
-  local filepath = year_dir .. "/" .. filename
+  local filepath = yearly_dir .. "/" .. filename
 
   -- Open a new buffer with the file path
   vim.cmd("edit " .. filepath)

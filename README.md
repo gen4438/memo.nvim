@@ -4,7 +4,7 @@ Neovim plugin for efficient memo management with fzf-lua integration and Git syn
 
 ## Features
 
-- Create different types of memos (general, work, prompt, code)
+- Create different types of memos (general, work)
 - Generate periodic memos (daily, weekly, monthly, yearly)
 - Easy todo list management
 - Search memos using fzf-lua
@@ -64,30 +64,26 @@ my-notes/
 ├── templates/               # Template directory
 │   ├── general.md           # Template for general memos
 │   ├── work.md              # Template for work memos
-│   └── ...                  # Other templates
+│   ├── daily.md             # Template for daily memos
+│   ├── weekly.md            # Template for weekly memos
+│   ├── monthly.md           # Template for monthly memos
+│   └── yearly.md            # Template for yearly memos
 ├── todo/
 │   └── todo.md              # Todo list
-├── prompt/
-├── note/
-│   ├── work/
-│   │   ├── project1/
-│   │   │   ├── YYYY/MM/YYYY-MM-DD_note1.md
-│   │   │   └── YYYY/MM/YYYY-MM-DD_note2.md
-│   │   └── project2/
-│   └── general/
-│       ├── YYYY/MM/YYYY-MM-DD_daily.md     # Daily memo
-│       ├── YYYY/MM/YYYY-MM-wXX_weekly.md   # Weekly memo (XX is week number)
-│       ├── YYYY/MM/YYYY-MM_monthly.md      # Monthly memo
-│       ├── YYYY/YYYY_yearly.md             # Yearly memo
-│       ├── YYYY/MM/YYYY-MM-DD_note1.md
-│       └── YYYY/MM/YYYY-MM-DD_note2.md
-└── code/
-    ├── python/
-    │   ├── YYYY/MM/YYYY-MM-DD_script1.md
-    │   ├── YYYY/MM/YYYY-MM-DD_script2.md
-    ├── javascript/
-    ├── golang/
-    ├── other_language/
+├── general/                 # General memos
+│   ├── daily/               # Daily memos
+│   │   └── YYYY/MM/YYYY-MM-DD_daily.md
+│   ├── weekly/              # Weekly memos
+│   │   └── YYYY/YYYY-wXX_weekly.md
+│   ├── monthly/             # Monthly memos
+│   │   └── YYYY/YYYY-MM_monthly.md
+│   ├── yearly/              # Yearly memos
+│   │   └── YYYY_yearly.md
+│   └── notes/               # General notes
+│       └── YYYY/MM/YYYY-MM-DD_title.md
+└── work/                    # Work memos
+    └── project1/
+        └── YYYY/MM/YYYY-MM-DD_title.md
 ```
 
 ## Commands
@@ -96,8 +92,6 @@ my-notes/
 
 - `:MemoNew <title>` - Create a new general memo
 - `:MemoNewWork [project_name] [title]` - Create a work memo (interactive if no args)
-- `:MemoNewPrompt <title>` - Create a new prompt memo
-- `:MemoNewCode [lang] [title]` - Create a code memo (interactive if no args)
 
 ### Todo and Periodic Memos
 
@@ -135,8 +129,6 @@ Note: Periodic memos are created as buffers only and are saved to disk only when
 
 - `<leader>mnn` - Create new general memo
 - `<leader>mnw` - Create new work memo (interactive)
-- `<leader>mnp` - Create new prompt memo
-- `<leader>mnc` - Create new code memo (interactive)
 
 ### Todo and Periodic Memos
 
@@ -195,18 +187,15 @@ The plugin includes a template system for customizing all memo types. Templates 
 - `{{month}}` - Current month (based on `month_format`)
 - `{{year}}` - Current year
 - `{{project}}` - Project name (for work memos)
-- `{{language}}` - Language name (for code memos)
 
 Default templates are provided for all memo types. You can edit them using the `:MemoTemplateEdit` command.
 
 ## Interactive Selection
 
-When creating work memos or code memos, you can select existing projects/languages or create new ones:
+When creating work memos without arguments, you can select existing projects or create new ones:
 
 - Work memos: Choose from existing projects or select "+ Create new project"
-- Code memos: Choose from existing languages or select "+ Create new language"
 
 ## Completion
 
 - Work memo project names are auto-completed based on existing directories
-- Code memo languages are auto-completed based on existing directories

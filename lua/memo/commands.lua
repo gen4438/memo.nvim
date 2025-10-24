@@ -81,55 +81,6 @@ function M.interactive_work_memo()
   end)
 end
 
-function M.interactive_code_memo()
-  local memo = require('memo.memo')
-  local utils = require('memo.utils')
-
-  -- Get list of available languages
-  local languages = utils.complete_languages("", "", 0)
-
-  -- Add option for creating a new language
-  table.insert(languages, 1, "+ Create new language")
-
-  -- Show language selection
-  vim.ui.select(languages, {
-    prompt = "Select language or create new: ",
-  }, function(selected)
-    if not selected then
-      return
-    end
-
-    if selected == "+ Create new language" then
-      -- Prompt for new language name
-      vim.ui.input({
-        prompt = "Enter new language name: ",
-      }, function(new_lang)
-        if new_lang and new_lang ~= "" then
-          new_lang = vim.trim(new_lang)
-          -- Now ask for a title
-          vim.ui.input({
-            prompt = "Enter memo title: ",
-          }, function(title)
-            if title and title ~= "" then
-              title = vim.trim(title)
-              memo.create_code_memo(new_lang, title)
-            end
-          end)
-        end
-      end)
-    else
-      -- Selected an existing language
-      vim.ui.input({
-        prompt = "Enter memo title: ",
-      }, function(title)
-        if title and title ~= "" then
-          title = vim.trim(title)
-          memo.create_code_memo(selected, title)
-        end
-      end)
-    end
-  end)
-end
 
 -- Setup commands and keymaps
 function M.setup()
@@ -178,41 +129,6 @@ function M.setup()
     end,
   })
 
-  api.nvim_create_user_command("MemoNewPrompt", function(args)
-    local title = vim.trim(args.args)
-    require('memo.memo').create_prompt_memo(title)
-  end, {
-    nargs = 1,
-    desc = "Create a new prompt memo",
-  })
-
-  api.nvim_create_user_command("MemoNewCode", function(args)
-    if args.args == "" then
-      -- Interactive mode
-      M.interactive_code_memo()
-    else
-      -- Traditional mode with arguments
-      local trimmed_args = vim.trim(args.args)
-      local parts = vim.split(trimmed_args, " ", { plain = true })
-      if #parts < 2 then
-        vim.notify("Usage: MemoNewCode language title", vim.log.levels.ERROR)
-        return
-      end
-      local lang = parts[1]
-      local title = vim.trim(table.concat({ unpack(parts, 2) }, " "))
-      require('memo.memo').create_code_memo(lang, title)
-    end
-  end, {
-    nargs = "?",
-    desc = "Create a new code memo",
-    complete = function(arg_lead, cmd_line, cursor_pos)
-      local cmd_parts = vim.split(cmd_line, " ", { plain = true })
-      if #cmd_parts == 2 then
-        return require('memo.utils').complete_languages(arg_lead, cmd_line, cursor_pos)
-      end
-      return {}
-    end,
-  })
 
   -- Template management command
   api.nvim_create_user_command("MemoTemplateEdit", function(args)
@@ -337,8 +253,6 @@ function M.setup()
     { "n", "<leader>mnn",  ":MemoNew ",                  { desc = "Create new general memo", noremap = true } },
     { "n", "<leader>mt",   "<cmd>MemoOpenTodo<CR>",      { desc = "Open todo list", noremap = true } },
     { "n", "<leader>mnw",  ":MemoNewWork<CR>",           { desc = "Create new work memo (interactive)", noremap = true } },
-    { "n", "<leader>mnp",  ":MemoNewPrompt ",            { desc = "Create new prompt memo", noremap = true } },
-    { "n", "<leader>mnc",  ":MemoNewCode<CR>",           { desc = "Create new code memo (interactive)", noremap = true } },
 
     -- Periodic memos
     { "n", "<leader>md",   "<cmd>MemoOpenDaily<CR>",     { desc = "Open daily memo", noremap = true } },
