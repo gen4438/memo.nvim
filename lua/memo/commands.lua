@@ -30,6 +30,14 @@ function M.open_todo()
   end
 end
 
+-- Function to change directory to memo_dir
+function M.cd_to_memo_dir()
+  local cfg = require('memo.config').get()
+  local memo_dir = vim.fn.expand(cfg.memo_dir)
+  vim.cmd("cd " .. vim.fn.fnameescape(memo_dir))
+  vim.notify("Changed directory to: " .. memo_dir, vim.log.levels.INFO)
+end
+
 -- Interactive memo creation functions
 function M.interactive_work_memo()
   local memo = require('memo.memo')
@@ -149,6 +157,12 @@ function M.setup()
     M.open_todo()
   end, {
     desc = "Open todo list",
+  })
+
+  api.nvim_create_user_command("MemoCd", function()
+    M.cd_to_memo_dir()
+  end, {
+    desc = "Change directory to memo directory",
   })
 
   api.nvim_create_user_command("MemoNewWork", function(args)
@@ -327,6 +341,7 @@ function M.setup()
     { "n", "<leader>mt",   "<cmd>MemoOpenTodo<CR>",      { desc = "Open todo list", noremap = true } },
     { "n", "<leader>mnw",  ":MemoNewWork<CR>",           { desc = "Create new work memo (interactive)", noremap = true } },
     { "n", "<leader>mne",  ":MemoNewExperiment<CR>",     { desc = "Create new experiment notebook (interactive)", noremap = true } },
+    { "n", "<leader>mcd",  "<cmd>MemoCd<CR>",            { desc = "Change directory to memo directory", noremap = true } },
 
     -- Periodic memos
     { "n", "<leader>md",   "<cmd>MemoOpenDaily<CR>",     { desc = "Open daily memo", noremap = true } },
