@@ -7,7 +7,7 @@
 
 ### ディレクトリレイアウト
 - `general/`: 一般メモ
-  - `daily/`, `weekly/`, `monthly/`, `yearly/`: 定期メモ
+  - `daily/`, `monthly/`: 定期メモ
   - `notes/`: 一般的な雑多なメモ
 - `work/`: プロジェクトごとの作業メモ
   - `<project>/experiments/`: 実験ノート
@@ -18,7 +18,7 @@
 ### ファイル命名規則
 - 一般メモ: `YYYY-MM-DD_title.md`
 - 実験ノート: `YYYY-MM-DD_expXXX_title.md` (XXXは自動採番ID)
-- 定期メモ: `YYYY-MM-DD_daily.md`, `YYYY-wXX_weekly.md` など
+- 定期メモ: `YYYY-MM-DD_daily.md`, `YYYY-MM_monthly.md` など
 
 ## 実験ノートの構造
 
@@ -107,7 +107,7 @@ hyperparameters:
 
 - **実験ノート**: データ分析・機械学習実験の詳細記録
 - **実験ID**: プロジェクト内で一意な実験識別子（exp001形式）
-- **定期メモ**: daily/weekly/monthly/yearlyの振り返りメモ
+- **定期メモ**: daily/monthlyの振り返りメモ
 - **一般メモ**: プロジェクトに属さない雑多なメモ
 
 ## 推奨される対応

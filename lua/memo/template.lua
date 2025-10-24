@@ -8,104 +8,10 @@ local M = {}
 -- Template placeholders:
 -- {{title}} - The title of the memo
 -- {{date}} - Current date in date_format
--- {{week_start}} - Start of week in date_format
--- {{week_end}} - End of week in date_format
 -- {{month}} - Current month in month_format
 -- {{year}} - Current year in year_format
 -- {{project}} - Project name (for work memos)
--- {{language}} - Language name (for code memos)
-
--- Map of default templates for each memo type
-local default_templates = {
-  general = [[# {{title}}
-
-Date: {{date}}
-
-]],
-
-  work = [[# {{title}}
-
-Date: {{date}}
-Project: {{project}}
-
-]],
-
-  prompt = [[# {{title}}
-
-Date: {{date}}
-
-]],
-
-  code = [[# {{title}} ({{language}})
-
-Date: {{date}}
-Language: {{language}}
-
-```{{language}}
-
-```
-
-]],
-
-  daily = [[# Daily Memo: {{date}}
-
-## Tasks
-
-- [ ]
-
-## Notes
-
-]],
-
-  weekly = [[# Weekly Memo: {{week_start}} - {{week_end}}
-
-## Goals
-
-- [ ]
-
-## Summary
-
-]],
-
-  monthly = [[# Monthly Memo: {{month}}
-
-## Monthly Goals
-
-- [ ]
-
-## Achievements
-
-## Reflection
-
-]],
-
-  yearly = [[# Yearly Memo: {{year}}
-
-## Annual Goals
-
-- [ ]
-
-## Key Projects
-
-## Year Review
-
-]],
-
-  todo = [[# Todo List
-
-## Today
-
-- [ ]
-
-## This Week
-
-- [ ]
-
-## Backlog
-
-- [ ]
-]]
-}
+-- {{exp_id}} - Experiment ID (for experiment notebooks)
 
 -- Get path to the plugin's default templates directory
 function M.get_plugin_templates_dir()
@@ -114,53 +20,78 @@ function M.get_plugin_templates_dir()
   return plugin_path .. "/templates"
 end
 
--- Get a list of all available template types
+-- Get a list of all available template types by scanning the plugin templates directory
 function M.get_template_types()
   local template_types = {}
-  for template_type, _ in pairs(default_templates) do
-    table.insert(template_types, template_type)
+  local plugin_template_dir = M.get_plugin_templates_dir()
+
+  -- Scan the plugin templates directory for .md files
+  local handle = vim.loop.fs_scandir(plugin_template_dir)
+  if handle then
+    while true do
+      local name, type = vim.loop.fs_scandir_next(handle)
+      if not name then break end
+
+      if type == "file" and name:match("%.md$") then
+        -- Remove .md extension to get template type
+        local template_type = name:gsub("%.md$", "")
+        table.insert(template_types, template_type)
+      end
+    end
   end
+
   table.sort(template_types)
   return template_types
 end
 
--- Create default templates in the template_dir
+-- Create default templates in the template_dir by copying from plugin templates directory
 function M.create_default_templates()
   local cfg = config.get()
   local template_dir = vim.fn.expand(cfg.template_dir)
+  local plugin_template_dir = M.get_plugin_templates_dir()
 
   -- Ensure template directory exists
   utils.ensure_dir_exists(template_dir)
 
-  -- Create default templates if they don't exist
-  for template_name, content in pairs(default_templates) do
+  -- Copy templates from plugin directory if they don't exist
+  local template_types = M.get_template_types()
+  for _, template_name in ipairs(template_types) do
     local template_path = template_dir .. "/" .. template_name .. ".md"
+    local plugin_template_path = plugin_template_dir .. "/" .. template_name .. ".md"
 
-    if vim.fn.filereadable(template_path) == 0 then
-      local file = io.open(template_path, "w")
-      if file then
-        file:write(content)
-        file:close()
-        vim.notify("Created default template: " .. template_name, vim.log.levels.INFO)
-      end
+    if vim.fn.filereadable(template_path) == 0 and vim.fn.filereadable(plugin_template_path) == 1 then
+      -- Copy the file
+      vim.fn.system("cp " .. vim.fn.shellescape(plugin_template_path) .. " " .. vim.fn.shellescape(template_path))
+      vim.notify("Created default template: " .. template_name, vim.log.levels.INFO)
     end
   end
 end
 
--- Create a specific template
+-- Create a specific template by copying from plugin templates directory
 function M.create_template(template_type)
-  if not default_templates[template_type] then
+  local template_types = M.get_template_types()
+  local is_valid = false
+  for _, valid_type in ipairs(template_types) do
+    if valid_type == template_type then
+      is_valid = true
+      break
+    end
+  end
+
+  if not is_valid then
     vim.notify("Unknown template type: " .. template_type, vim.log.levels.ERROR)
     return false
   end
 
   local cfg = config.get()
   local template_dir = vim.fn.expand(cfg.template_dir)
+  local plugin_template_dir = M.get_plugin_templates_dir()
 
   -- Ensure template directory exists
   utils.ensure_dir_exists(template_dir)
 
   local template_path = template_dir .. "/" .. template_type .. ".md"
+  local plugin_template_path = plugin_template_dir .. "/" .. template_type .. ".md"
 
   -- Check if the template already exists
   if vim.fn.filereadable(template_path) == 1 then
@@ -169,25 +100,30 @@ function M.create_template(template_type)
       prompt = "Template '" .. template_type .. "' already exists. Overwrite?",
     }, function(choice)
       if choice == "Yes" then
-        M.write_template(template_type, template_path)
+        M.copy_template(plugin_template_path, template_path, template_type)
       end
     end)
   else
     -- Create new template
-    return M.write_template(template_type, template_path)
+    return M.copy_template(plugin_template_path, template_path, template_type)
   end
 end
 
--- Write template content to file
-function M.write_template(template_type, template_path)
-  local file = io.open(template_path, "w")
-  if file then
-    file:write(default_templates[template_type])
-    file:close()
+-- Copy template from plugin directory to user directory
+function M.copy_template(plugin_template_path, template_path, template_type)
+  if vim.fn.filereadable(plugin_template_path) == 0 then
+    vim.notify("Plugin template not found: " .. template_type, vim.log.levels.ERROR)
+    return false
+  end
+
+  -- Copy the file
+  vim.fn.system("cp " .. vim.fn.shellescape(plugin_template_path) .. " " .. vim.fn.shellescape(template_path))
+
+  if vim.v.shell_error == 0 then
     vim.notify("Created template: " .. template_type, vim.log.levels.INFO)
 
     -- Open the template for editing
-    vim.cmd("edit " .. template_path)
+    vim.cmd("edit " .. vim.fn.fnameescape(template_path))
     return true
   else
     vim.notify("Failed to create template: " .. template_type, vim.log.levels.ERROR)
@@ -224,8 +160,9 @@ function M.get_template(template_name)
     end
   end
 
-  -- Fall back to default template
-  return default_templates[template_name]
+  -- Template not found
+  vim.notify("Template not found: " .. template_name, vim.log.levels.ERROR)
+  return nil
 end
 
 -- Process template with variables
@@ -243,27 +180,15 @@ end
 -- Generate template variables based on current date and memo specific info
 function M.generate_variables(memo_info)
   local cfg = config.get()
-  local date = os.date("*t")
 
   -- Format dates according to configuration
   local date_str = os.date(cfg.date_format)
   local month_str = os.date(cfg.month_format)
   local year_str = os.date(cfg.year_format)
 
-  -- Get week start and end dates
-  local wday = date.wday
-  local monday_offset = wday == 1 and -6 or (2 - wday)
-  local monday = os.time { year = date.year, month = date.month, day = date.day + monday_offset }
-  local sunday = os.time { year = date.year, month = date.month, day = date.day + monday_offset + 6 }
-
-  local week_start = os.date(cfg.date_format, monday)
-  local week_end = os.date(cfg.date_format, sunday)
-
   -- Basic variables available to all templates
   local variables = {
     date = date_str,
-    week_start = week_start,
-    week_end = week_end,
     month = month_str,
     year = year_str,
   }
@@ -288,7 +213,16 @@ end
 
 -- Edit a template
 function M.edit_template(template_type)
-  if not default_templates[template_type] then
+  local template_types = M.get_template_types()
+  local is_valid = false
+  for _, valid_type in ipairs(template_types) do
+    if valid_type == template_type then
+      is_valid = true
+      break
+    end
+  end
+
+  if not is_valid then
     vim.notify("Unknown template type: " .. template_type, vim.log.levels.ERROR)
     return false
   end
@@ -308,17 +242,16 @@ function M.edit_template(template_type)
       utils.ensure_dir_exists(template_dir)
 
       -- Copy the file
-      vim.fn.system("cp " .. plugin_template_path .. " " .. template_path)
+      vim.fn.system("cp " .. vim.fn.shellescape(plugin_template_path) .. " " .. vim.fn.shellescape(template_path))
       vim.notify("Copied template from plugin: " .. template_type, vim.log.levels.INFO)
     else
-      -- Create a new template
-      M.create_template(template_type)
-      return true
+      vim.notify("Template not found in plugin: " .. template_type, vim.log.levels.ERROR)
+      return false
     end
   end
 
   -- Open the template file
-  vim.cmd("edit " .. template_path)
+  vim.cmd("edit " .. vim.fn.fnameescape(template_path))
   return true
 end
 
