@@ -20,6 +20,9 @@ local function fugitive_exec(cmd, success_msg)
   local current_dir = vim.fn.getcwd()
   vim.cmd("cd " .. memo_dir)
 
+  -- Record window count before execution
+  local win_count_before = #vim.api.nvim_list_wins()
+
   -- Execute the fugitive command
   vim.cmd(cmd)
 
@@ -28,6 +31,22 @@ local function fugitive_exec(cmd, success_msg)
 
   -- Return to original buffer/window for commands that don't show UI
   if not cmd:match("^Git$") then
+    -- Close any windows that fugitive opened
+    local win_count_after = #vim.api.nvim_list_wins()
+    if win_count_after > win_count_before then
+      -- Close the extra windows (usually fugitive status/result windows)
+      for i = 1, win_count_after - win_count_before do
+        -- Try to close the window that is not the original one
+        local wins = vim.api.nvim_list_wins()
+        for _, win in ipairs(wins) do
+          if win ~= current_win and vim.api.nvim_win_is_valid(win) then
+            vim.api.nvim_win_close(win, true)
+            break
+          end
+        end
+      end
+    end
+
     vim.api.nvim_set_current_buf(current_buf)
     vim.api.nvim_set_current_win(current_win)
 
