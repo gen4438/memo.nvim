@@ -2,6 +2,8 @@
 
 **Project**: {{project}}
 
+Date: {{date}}
+
 ## Tasks
 
 - [ ]
