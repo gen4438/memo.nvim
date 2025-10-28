@@ -62,7 +62,7 @@ function M.create_default_templates()
   -- Ensure template directory exists
   utils.ensure_dir_exists(template_dir)
 
-  -- Copy templates from plugin directory if they don't exist
+  -- Get list of templates
   local template_types = M.get_template_types()
 
   if #template_types == 0 then
@@ -72,22 +72,47 @@ function M.create_default_templates()
 
   vim.notify("Found " .. #template_types .. " templates to install", vim.log.levels.INFO)
 
+  -- Check for existing templates
+  local existing_templates = {}
+  for _, template_name in ipairs(template_types) do
+    local template_path = template_dir .. "/" .. template_name .. ".md"
+    if vim.fn.filereadable(template_path) == 1 then
+      table.insert(existing_templates, template_name)
+    end
+  end
+
+  -- Ask for overwrite confirmation if any existing templates found
+  local overwrite_all = false
+  if #existing_templates > 0 then
+    local answer = vim.fn.input("Found " .. #existing_templates .. " existing template(s). Overwrite? (y/n): ")
+    print("") -- Add newline after input
+    if answer:lower() == "y" or answer:lower() == "yes" then
+      overwrite_all = true
+    end
+  end
+
+  -- Copy templates
   for _, template_name in ipairs(template_types) do
     local template_path = template_dir .. "/" .. template_name .. ".md"
     local plugin_template_path = plugin_template_dir .. "/" .. template_name .. ".md"
+    local template_exists = vim.fn.filereadable(template_path) == 1
 
-    if vim.fn.filereadable(template_path) == 0 and vim.fn.filereadable(plugin_template_path) == 1 then
+    if vim.fn.filereadable(plugin_template_path) == 0 then
+      vim.notify("Plugin template not readable: " .. template_name, vim.log.levels.WARN)
+    elseif template_exists and not overwrite_all then
+      vim.notify("Template already exists (skipped): " .. template_name, vim.log.levels.INFO)
+    else
       -- Copy the file
       local result = vim.fn.system("cp " .. vim.fn.shellescape(plugin_template_path) .. " " .. vim.fn.shellescape(template_path))
       if vim.v.shell_error == 0 then
-        vim.notify("Created default template: " .. template_name, vim.log.levels.INFO)
+        if template_exists then
+          vim.notify("Overwritten template: " .. template_name, vim.log.levels.INFO)
+        else
+          vim.notify("Created default template: " .. template_name, vim.log.levels.INFO)
+        end
       else
         vim.notify("Failed to copy template " .. template_name .. ": " .. result, vim.log.levels.ERROR)
       end
-    elseif vim.fn.filereadable(template_path) == 1 then
-      vim.notify("Template already exists: " .. template_name, vim.log.levels.INFO)
-    else
-      vim.notify("Plugin template not readable: " .. template_name, vim.log.levels.WARN)
     end
   end
 end
