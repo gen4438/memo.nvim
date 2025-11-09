@@ -10,24 +10,22 @@ local function has_fugitive()
 end
 
 -- Helper function to execute git commands with fugitive
+-- Uses -C option to ensure commands run in memo directory
 local function fugitive_exec(cmd, success_msg)
   local current_buf = vim.api.nvim_get_current_buf()
   local current_win = vim.api.nvim_get_current_win()
   local cfg = config.get()
   local memo_dir = vim.fn.expand(cfg.memo_dir)
 
-  -- Preserve current directory
-  local current_dir = vim.fn.getcwd()
-  vim.cmd("cd " .. memo_dir)
-
   -- Record window count before execution
   local win_count_before = #vim.api.nvim_list_wins()
 
-  -- Execute the fugitive command
-  vim.cmd(cmd)
+  -- Modify the Git command to use -C flag to specify the directory
+  -- For example: "Git add -u" becomes "Git -C /path/to/memo add -u"
+  local modified_cmd = cmd:gsub("^Git%s*", "Git -C " .. vim.fn.shellescape(memo_dir) .. " ")
 
-  -- Return to original directory
-  vim.cmd("cd " .. current_dir)
+  -- Execute the fugitive command with -C flag
+  vim.cmd(modified_cmd)
 
   -- Return to original buffer/window for commands that don't show UI
   if not cmd:match("^Git$") then
@@ -58,19 +56,16 @@ local function fugitive_exec(cmd, success_msg)
 end
 
 -- Helper function to execute git commands using shell
+-- Uses git -C to execute in memo directory without changing cwd
 local function shell_exec(git_cmd, success_msg, error_prefix)
   local cfg = config.get()
   local memo_dir = vim.fn.expand(cfg.memo_dir)
-  local current_dir = vim.fn.getcwd()
 
-  -- Change to memo directory
-  vim.cmd("cd " .. memo_dir)
+  -- Use git -C to execute in memo directory without changing cwd
+  local full_cmd = string.format("git -C %s %s", vim.fn.shellescape(memo_dir), git_cmd)
 
   -- Run git command
-  local result = vim.fn.system(git_cmd)
-
-  -- Go back to original directory
-  vim.cmd("cd " .. current_dir)
+  local result = vim.fn.system(full_cmd)
 
   if vim.v.shell_error ~= 0 then
     vim.notify(error_prefix .. ": " .. result, vim.log.levels.ERROR)
@@ -152,30 +147,13 @@ end
 function M.git_show_status()
   local cfg = config.get()
   local memo_dir = vim.fn.expand(cfg.memo_dir)
-  local current_dir = vim.fn.getcwd()
 
   if has_fugitive() then
-    -- Use fugitive for git status
-    -- Store current buffer to return to it later
-    local current_buf = vim.api.nvim_get_current_buf()
-
-    -- Execute Git command in memo directory
-    vim.cmd("cd " .. memo_dir)
-    vim.cmd("Git")
-
-    -- Return to original directory after fugitive buffer is shown
-    vim.defer_fn(function()
-      vim.cmd("cd " .. current_dir)
-    end, 100) -- Small delay to ensure Git command completes
+    -- Use fugitive for git status with -C flag
+    fugitive_exec("Git", nil)
   else
-    -- Fallback to shell command
-    vim.cmd("cd " .. memo_dir)
-
-    -- Run git status and capture output
-    local result = vim.fn.system("git status")
-
-    -- Go back to original directory
-    vim.cmd("cd " .. current_dir)
+    -- Fallback to shell command with git -C
+    local result = vim.fn.system(string.format("git -C %s status", vim.fn.shellescape(memo_dir)))
 
     if vim.v.shell_error ~= 0 then
       vim.notify("Git status failed: " .. result, vim.log.levels.ERROR)
