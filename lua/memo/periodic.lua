@@ -71,4 +71,55 @@ function M.open_monthly_memo()
   end
 end
 
+-- Open or create work monthly memo
+function M.open_work_monthly_memo()
+  local year, month = utils.get_date_parts()
+  local cfg = config.get()
+
+  -- Get list of available projects
+  local projects = utils.complete_project_names("", "", 0)
+
+  if #projects == 0 then
+    vim.notify("No projects found. Create a work memo first.", vim.log.levels.WARN)
+    return
+  end
+
+  -- Show project selection
+  vim.ui.select(projects, {
+    prompt = "Select project for monthly memo: ",
+  }, function(selected)
+    if not selected then
+      return
+    end
+
+    -- Create directory path
+    local year_dir = vim.fn.expand(cfg.memo_dir .. "/work/" .. selected .. "/monthly/" .. year)
+    utils.ensure_dir_exists(year_dir)
+
+    -- Create filename
+    local filename = year .. "-" .. month .. "_monthly.md"
+    local filepath = year_dir .. "/" .. filename
+
+    -- Open a new buffer with the file path
+    vim.cmd("edit " .. filepath)
+
+    -- If the file doesn't exist yet, set up template in the buffer only
+    if vim.fn.filereadable(filepath) == 0 then
+      local content = template.get_processed_template("monthly", {
+        project = selected
+      })
+      if content then
+        local lines = vim.split(content, "\n")
+        vim.api.nvim_buf_set_lines(0, 0, -1, false, lines)
+      else
+        vim.notify(
+          "Monthly template not found. Run :MemoInstallTemplates to install default templates.",
+          vim.log.levels.WARN
+        )
+      end
+      -- File will only be created when the user explicitly saves
+    end
+  end)
+end
+
 return M

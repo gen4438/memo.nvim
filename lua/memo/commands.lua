@@ -267,6 +267,12 @@ function M.setup()
     desc = "Open monthly memo",
   })
 
+  api.nvim_create_user_command("MemoOpenWorkMonthly", function()
+    require('memo.periodic').open_work_monthly_memo()
+  end, {
+    desc = "Open work monthly memo",
+  })
+
   -- FZF commands
   api.nvim_create_user_command("FzfMemoList", function()
     require('memo.search').fzf_memo_list()
@@ -343,13 +349,14 @@ function M.setup()
     -- Memo creation
     { "n", "<leader>mnn",  ":MemoNew ",                  { desc = "Create new general memo", noremap = true } },
     { "n", "<leader>mt",   "<cmd>MemoOpenTodo<CR>",      { desc = "Open todo list", noremap = true } },
-    { "n", "<leader>mnw",  ":MemoNewWork<CR>",           { desc = "Create new work memo (interactive)", noremap = true } },
-    { "n", "<leader>mne",  ":MemoNewExperiment<CR>",     { desc = "Create new experiment notebook (interactive)", noremap = true } },
+    { "n", "<leader>mwn",  ":MemoNewWork<CR>",           { desc = "Create new work memo (interactive)", noremap = true } },
+    { "n", "<leader>men",  ":MemoNewExperiment<CR>",     { desc = "Create new experiment notebook (interactive)", noremap = true } },
     { "n", "<leader>mcd",  "<cmd>MemoCd<CR>",            { desc = "Change directory to memo directory", noremap = true } },
 
     -- Periodic memos
     { "n", "<leader>md",   "<cmd>MemoOpenDaily<CR>",     { desc = "Open daily memo", noremap = true } },
     { "n", "<leader>mm",   "<cmd>MemoOpenMonthly<CR>",   { desc = "Open monthly memo", noremap = true } },
+    { "n", "<leader>mwm",  "<cmd>MemoOpenWorkMonthly<CR>", { desc = "Open work monthly memo", noremap = true } },
 
     -- FZF integration
     { "n", "<leader>ml",   "<cmd>FzfMemoList<CR>",       { desc = "List memos with fzf", noremap = true } },
