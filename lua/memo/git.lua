@@ -10,48 +10,61 @@ local function has_fugitive()
 end
 
 -- Helper function to execute git commands with fugitive
--- Uses -C option to ensure commands run in memo directory
+-- Changes directory to memo_dir before executing commands
 local function fugitive_exec(cmd, success_msg)
   local current_buf = vim.api.nvim_get_current_buf()
   local current_win = vim.api.nvim_get_current_win()
   local cfg = config.get()
   local memo_dir = vim.fn.expand(cfg.memo_dir)
 
-  -- Record window count before execution
-  local win_count_before = #vim.api.nvim_list_wins()
+  -- Save current directory
+  local original_cwd = vim.fn.getcwd()
 
-  -- Modify the Git command to use -C flag to specify the directory
-  -- For example: "Git add -u" becomes "Git -C /path/to/memo add -u"
-  local modified_cmd = cmd:gsub("^Git%s*", "Git -C " .. vim.fn.shellescape(memo_dir) .. " ")
+  -- Change to memo directory before executing git command
+  vim.cmd("cd " .. vim.fn.fnameescape(memo_dir))
 
-  -- Execute the fugitive command with -C flag
-  vim.cmd(modified_cmd)
+  -- Use pcall to ensure we restore directory even if command fails
+  local success, err = pcall(function()
+    -- Record window count before execution
+    local win_count_before = #vim.api.nvim_list_wins()
 
-  -- Return to original buffer/window for commands that don't show UI
-  if not cmd:match("^Git$") then
-    -- Close any windows that fugitive opened
-    local win_count_after = #vim.api.nvim_list_wins()
-    if win_count_after > win_count_before then
-      -- Close the extra windows (usually fugitive status/result windows)
-      for i = 1, win_count_after - win_count_before do
-        -- Try to close the window that is not the original one
-        local wins = vim.api.nvim_list_wins()
-        for _, win in ipairs(wins) do
-          if win ~= current_win and vim.api.nvim_win_is_valid(win) then
-            vim.api.nvim_win_close(win, true)
-            break
+    -- Execute the fugitive command
+    vim.cmd(cmd)
+
+    -- Return to original buffer/window for commands that don't show UI
+    if not cmd:match("^Git$") then
+      -- Close any windows that fugitive opened
+      local win_count_after = #vim.api.nvim_list_wins()
+      if win_count_after > win_count_before then
+        -- Close the extra windows (usually fugitive status/result windows)
+        for i = 1, win_count_after - win_count_before do
+          -- Try to close the window that is not the original one
+          local wins = vim.api.nvim_list_wins()
+          for _, win in ipairs(wins) do
+            if win ~= current_win and vim.api.nvim_win_is_valid(win) then
+              vim.api.nvim_win_close(win, true)
+              break
+            end
           end
         end
       end
-    end
 
-    vim.api.nvim_set_current_buf(current_buf)
-    vim.api.nvim_set_current_win(current_win)
+      vim.api.nvim_set_current_buf(current_buf)
+      vim.api.nvim_set_current_win(current_win)
 
-    -- Show success message if provided
-    if success_msg then
-      vim.notify(success_msg, vim.log.levels.INFO)
+      -- Show success message if provided
+      if success_msg then
+        vim.notify(success_msg, vim.log.levels.INFO)
+      end
     end
+  end)
+
+  -- Restore original directory
+  vim.cmd("cd " .. vim.fn.fnameescape(original_cwd))
+
+  -- Re-throw error if command failed
+  if not success then
+    error(err)
   end
 end
 
